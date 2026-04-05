@@ -63,7 +63,9 @@
 - productCategoryId : INT (FK)			
 - productName : VARCHAR (100)			
 - attributes : JSON						
-- batchBase : VARCHAR(50)			
+- batchBase : VARCHAR(50)	
+- lotNumber : INT	
+- stockQuantity :  INT
 
 ==============================================================
 |          				     Website 	                     |                                     
@@ -133,19 +135,18 @@
 - customerId : INT (FK)
 - countryId : INT (FK)
 - orderStatuId : INT (FK)
-- priceLocal : DECIMAL(10,2)
-- priceUSD : DECIMAL(10,2)
-- taxLocal : DECIMAL(10,2)
-- totalLocal : DECIMAL(10,2)
+- netAmountLocal : DECIMAL(10,2)
+- taxAmountLocal : DECIMAL(10,2)
+- totalGrossLocal : DECIMAL(10,2)
 - orderDate : DATE
-- totalUSD : DECIMAL(10,4) 
+- netAmountUSD : DECIMAL(10,4) 
 - rateId : INT (FK)
 
 ## orderItems
 - orderItemId : INT AUTO_INCREMENT (PK)
 - orderId : INT (FK)
 - productId : INT (FK)
-- cuantity : INT
+- quantity : INT
 - itemPriceLocal : DECIMAL(10,2)
 - itemPriceUSD : DECIMAL(10,2)
 - taxLocal : DECIMAL(10,2) 
