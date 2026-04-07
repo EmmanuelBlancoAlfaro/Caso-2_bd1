@@ -1,21 +1,21 @@
 # Tablas mySQL (Dynamic Brands)
 
 ==============================================================
-|          				   Currency	                     	 |                                     
+|          				   Currency	                     	 | 
 ==============================================================
 ## Currency
 - currencyId : INT AUTO_INCREMENT (PK)
 - name : VARCHAR(50)				
 - simbol : VARCHAR(1)				
 
-## currencyRates (Nueva)
+## currencyRates
 - rateId : INT AUTO_INCREMENT (PK)
 - currencyId : INT (FK)
 - exchangeRate : DECIMAL(18,6) 
 - rateDate : DATE
 
 ==============================================================
-|          				   Addresses	                     |                                     
+|          				   Addresses	                     |
 ==============================================================
 
 
@@ -45,10 +45,15 @@
 
 
 ==============================================================
-|          				   Products 	                     |                                     
+|          				   Products 	                     |
 ==============================================================
 
-## product_categories
+## UnitsOfMeasures
+- unitOfMeasureId: INT AUTO_INCREMENT (PK)
+- symbol: UNIQUE VARCHAR (5)
+- name: VARCHAR (30)
+
+## productCategories
 - productCategoryId : INT AUTO_INCREMENT (PK)
 - name : VARCHAR(40)					
 - description : VARCHAR(100)			
@@ -60,7 +65,8 @@
 
 ## products
 - productId : INT AUTO_INCREMENT (PK)
-- productCategoryId : INT (FK)			
+- productCategoryId : INT (FK)	
+- unitOfMeasureId : INT (FK)		
 - productName : VARCHAR (100)			
 - attributes : JSON						
 - batchBase : VARCHAR(50)	
@@ -68,12 +74,13 @@
 - stockQuantity :  INT
 
 ==============================================================
-|          				     Website 	                     |                                     
+|          				     Website 	                     |
 ==============================================================
+
 
 ## websites
 - websiteId : INT AUTO_INCREMENT (PK)
-- countryId : INT (FK) 					
+- countryId : INT (FK) 				
 - brandName : VARCHAR(150)				
 - domain : VARCHAR(32)					
 - marketingFocus : VARCHAR(50)			
@@ -92,14 +99,9 @@
 - enabled : BOOLEAN						
 - brandTypeId : INT (FK)				
 
-## siteTemplates
-- templateId : INT AUTO_INCREMENT (PK)
-- websiteId : INT (FK)					
-- theme : JSON            --(La plantilla de la pagina web, el header, colores, etc)
-
 
 ==============================================================
-|          				   Customers 	                     |                                     
+|          				   Customers 	                     |
 ==============================================================
 
 ## customers
@@ -121,7 +123,7 @@
 
 
 ==============================================================
-|          				   orders	 	                     |                                     
+|          				   orders	 	                     |
 ==============================================================
 
 ##ordersStatus
@@ -180,7 +182,7 @@
 - estimatedDeliveryDaye : DATE
 - shippingTaxUSD : DECIMAL(5, 2)
 
-## shipments_status_history
+## shipmentsStatusHistory
 - shipmentHistoryId : INT AUTO_INCREMENT (PK)
 - shipmentId : INT (FK)
 - shipmentStatusId : INT (FK)
