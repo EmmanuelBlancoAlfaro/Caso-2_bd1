@@ -201,7 +201,7 @@
 - shippedAt : DATETIME
 - deliveredAt : DATETIME
 - estimatedDeliveryDaye : DATE
-- shippingTaxUSD : DECIMAL(5, 2)
+- shippingTaxId : INT (FK)
 
 ## shipmentsStatusHistory
 - shipmentHistoryId : INT AUTO_INCREMENT (PK)
@@ -214,9 +214,23 @@
 ==============================================================
 |        	taxes and restriction per product	 	         |                                     
 ==============================================================
+## taxesTypes
+- taxTypeId : INT AUTO_INCREMENT(PK)
+- taxTypeName : VARCHAR(100)
+- taxTypeDescription : VARCHAR(150)
+
+## shippingTaxes
+- shippingTaxId : INT AUTO_INCREMENT (PK)
+- countryId : INT (FK)
+- taxPercent : DECIMAL (5,2)
+- description : VARCHAR (50)
+
 ## taxesPerCountry
 - taxId : INT AUTO_INCREMENT(PK)
 - countryId : INT (FK)
+- taxTypeId : INT (FK)
+- validFrom : DATE						
+- validUntil : DATE	
 - productCategoryId : INT (FK)
 - tax_percent DECIMAL(5,2)
 - enabled : BOOLEAN
@@ -231,6 +245,8 @@
 - productId : INT (FK)
 - countryId : INT (FK)
 - restrictionTypeId : INT (FK)
+- healthRegistrationNumber : VARCHAR(50)
+- registrationExpiration : DATE
 - restrictionDescription : TEXT
 - enabled : BOOLEAN
 
