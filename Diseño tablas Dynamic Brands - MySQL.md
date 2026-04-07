@@ -50,8 +50,6 @@
 - batchDescription : VARCHAR(150)
 - enabled : BOOLEAN
 
-
-
 ## UnitsOfMeasures
 - unitOfMeasureId: INT AUTO_INCREMENT (PK)
 - symbol: UNIQUE VARCHAR (5)
@@ -84,7 +82,6 @@
 - hubLocation : VARCHAR(50) -- (Pasillo A, Estante B) para el HUB de Nicaragua
 - lastUpdated : TIMESTAMP
 
-
 ## productPriceHistory
 - priceHistoryId : INT AUTO_INCREMENT (PK)
 - productId : INT (FK)
@@ -96,8 +93,6 @@
 ==============================================================
 |          				     Website 	                     |
 ==============================================================
-
-
 ## websites
 - websiteId : INT AUTO_INCREMENT (PK)
 - countryId : INT (FK) 				
@@ -145,7 +140,6 @@
 ==============================================================
 |          				   orders	 	                     |
 ==============================================================
-
 ##ordersStatus
 - orderStatuId : INT AUTO_INCREMENT (PK)
 - orderStatusName : VARCHAR(20)			
@@ -178,7 +172,6 @@
 ==============================================================
 |            		orderTransportation	 	                 |                                     
 ==============================================================
-
 ## shippingMethods
 - methodId : INT AUTO_INCREMENT (PK)
 - methodName : VARCHAR(50) 		-- (Aéreo, Marítimo, Terrestre Moto, Terrestre Camión)
@@ -221,7 +214,6 @@
 ==============================================================
 |        	taxes and restriction per product	 	         |                                     
 ==============================================================
-
 ## taxesPerCountry
 - taxId : INT AUTO_INCREMENT(PK)
 - countryId : INT (FK)
@@ -245,7 +237,6 @@
 ==============================================================
 |        					logs              	 	         |                                     
 ==============================================================
-
 ## sessions
 - sessionId : INT AUTO_INCREMENT (PK)
 - customerId : INT(FK)
