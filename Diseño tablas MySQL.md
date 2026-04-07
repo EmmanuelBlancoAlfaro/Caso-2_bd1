@@ -1,5 +1,4 @@
 # Tablas mySQL (Dynamic Brands)
-
 ==============================================================
 |          				   Currency	                     	 | 
 ==============================================================
@@ -17,8 +16,6 @@
 ==============================================================
 |          				   Addresses	                     |
 ==============================================================
-
-
 ## countries
 - countryId : INT AUTO_INCREMENT (PK)
 - isoCode : VARCHAR(3) 	 				
@@ -45,8 +42,15 @@
 
 
 ==============================================================
-|          				   Products 	                     |
+|          				HUB NICARAGUA                    	 | 
 ==============================================================
+## batch
+- batchId : INT AUTO_INCREMENT (FK)
+- batchNumber : INT 
+- batchDescription : VARCHAR(150)
+- enabled : BOOLEAN
+
+
 
 ## UnitsOfMeasures
 - unitOfMeasureId: INT AUTO_INCREMENT (PK)
@@ -56,7 +60,8 @@
 ## productCategories
 - productCategoryId : INT AUTO_INCREMENT (PK)
 - name : VARCHAR(40)					
-- description : VARCHAR(100)			
+- description : VARCHAR(100)
+- healthRiskLevel : VARCHAR(20)			
 
 ## BrandsPositionsTypes
 - brandTypeId : INT AUTO_INCREMENT (PK)
@@ -69,9 +74,24 @@
 - unitOfMeasureId : INT (FK)		
 - productName : VARCHAR (100)			
 - attributes : JSON						
-- batchBase : VARCHAR(50)	
-- lotNumber : INT	
-- stockQuantity :  INT
+- enabled : BOOLEAN
+
+## productInventory
+- inventoryId : INT AUTO_INCREMENT (PK)
+- productId : INT (FK)
+- batchId : INT (FK)
+- currentStock : INT
+- hubLocation : VARCHAR(50) -- (Pasillo A, Estante B) para el HUB de Nicaragua
+- lastUpdated : TIMESTAMP
+
+
+## productPriceHistory
+- priceHistoryId : INT AUTO_INCREMENT (PK)
+- productId : INT (FK)
+- websiteId : INT (FK)
+- oldPrice : DECIMAL(10,2)
+- newPrice : DECIMAL(10,2)
+- changeDate : TIMESTAMP
 
 ==============================================================
 |          				     Website 	                     |
@@ -159,6 +179,13 @@
 |            		orderTransportation	 	                 |                                     
 ==============================================================
 
+## shippingMethods
+- methodId : INT AUTO_INCREMENT (PK)
+- methodName : VARCHAR(50) 		-- (Aéreo, Marítimo, Terrestre Moto, Terrestre Camión)
+- baseCostUSD : DECIMAL(10,2) 	-- Costo base del método
+- estimatedDays : INT
+- enabled : BOOLEAN
+
 ## shippingCarriers
 - carrierId : INT AUTO_INCREMENT (PK)
 - name : VARCHAR(50)
@@ -174,6 +201,7 @@
 ## shipments
 - shipmentId : INT AUTO_INCREMENT(PK)
 - orderId : INT (FK)
+- methodId : INT (FK)
 - carrierId : INT (FK)
 - shipmentStatusId : INT (FK)
 - addressId : INT (FK)
@@ -247,7 +275,7 @@
 - sessionId : INT(FK)
 - description : VARCHAR(255)
 - creadetAt : TIMESTAMP
-- metadata : JSON 			--(viewProduct, addToCart, Purchase, etc)
+- metadata : JSON 			
 
 ## systemErrorsLogs
 - errorId : INT AUTO_INCREMENT (PK)
@@ -258,3 +286,16 @@
 - inputData : JSON
 - errorMesage : TEXT
 - creadetAt : DATE 
+
+## statusTransactionType
+- statusTypeId : INT AUTO_INCREMENT (PK)
+- statusName : VARCHAR(50) 
+- statusDescription : VARCHAR(150)
+
+## spTransactionState
+- stateId : INT AUTO_INCREMENT (PK)
+- orderId : INT (FK, NULL) 
+- statusTypeId : INT (FK)
+- stepName : VARCHAR(100) 
+- executionTime : TIMESTAMP
+- observations : TEXT 
