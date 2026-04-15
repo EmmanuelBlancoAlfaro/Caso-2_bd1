@@ -33,13 +33,19 @@
 - estateId : INT (FK)					
 - cityName : VARCHAR(100)				
 
+## addressType
+- addressTypeId : INT AUTO_INCREMENT(PK) 
+- addressTypeName : VARCHAR(100) -- Trabajo, hogar, etc.
+
 ## addresses
 - addressId : INT AUTO_INCREMENT (PK)
-- cityId : INT (FK)					
+- cityId : INT (FK)			
+- addressTypeId : INT(FK)		
 - address1 : VARCHAR(100)				
 - address2 : VARCHAR(100)
-- - postalCode VARCHAR(20)			
-
+- postalCode VARCHAR(20)			
+- latitude : DECIMAL(10, 8)
+- longitude : DECIMAL(10, 8)
 
 ==============================================================
 |          				HUB NICARAGUA                    	 | 
@@ -66,27 +72,42 @@
 - brandTypeName : VARCHAR(50)			
 - brandTypeDescription : VARCHAR(100)	
 
+## productAttributes
+- attributeId : INT AUTO_INCREMENT (PK)
+- attributeName : VARCHAR(50)
+
 ## products
 - productId : INT AUTO_INCREMENT (PK)
 - productCategoryId : INT (FK)	
 - unitOfMeasureId : INT (FK)		
-- productName : VARCHAR (100)			
-- attributes : JSON						
+- productName : VARCHAR (100)				
 - enabled : BOOLEAN
+
+## productAttributeValues 
+- valueId : INT AUTO_INCREMENT (PK)
+- productId : INT (FK)
+- attributeId : INT (FK)
+- valueText : TEXT -- (Ej: "Lavanda", "500ml", "Aceitoso")
+
+## hubLayout
+- locationId : INT AUTO_INCREMENT (PK)
+- zoneName : VARCHAR(20) -- (Carga, Empaque, Cuarto Frío)
+- aisle : VARCHAR(10)    -- (Pasillo)
+- shelf : VARCHAR(10)    -- (Estante)
+- bin : VARCHAR(10)      -- (Caja/Gaveta)
 
 ## productInventory
 - inventoryId : INT AUTO_INCREMENT (PK)
 - productId : INT (FK)
 - batchId : INT (FK)
 - currentStock : INT
-- hubLocation : VARCHAR(50) -- (Pasillo A, Estante B) para el HUB de Nicaragua
+- locationId : INT (FK)
 - lastUpdated : TIMESTAMP
 
 ## productPriceHistory
 - priceHistoryId : INT AUTO_INCREMENT (PK)
 - productId : INT (FK)
 - websiteId : INT (FK)
-- oldPrice : DECIMAL(10,2)
 - newPrice : DECIMAL(10,2)
 - changeDate : TIMESTAMP
 
@@ -98,12 +119,18 @@
 - countryId : INT (FK) 				
 - brandName : VARCHAR(150)				
 - domain : VARCHAR(32)					
-- marketingFocus : VARCHAR(50)			
-- enabled : BOOLEAN						
-- validFrom : DATE						
-- validUntil : DATE						
-- creadetAt : TIMESTAMP					
-- theme : JSON							
+- marketingFocus : VARCHAR(200)			
+- enabled : BOOLEAN																	
+- creadetAt : TIMESTAMP										
+
+## websiteThemes
+- themeId : INT AUTO_INCREMENT (PK)
+- websiteId : INT (FK)
+- themeName : VARCHAR(50)
+- colors : JSON
+- fonts : JSON
+- logoUrl : VARCHAR(255)
+- enabled : BOOLEAN
 
 ## websitesProducts
 - websiteProductId : INT AUTO_INCREMENT (PK)
@@ -112,7 +139,9 @@
 - displayName : VARCHAR(100)			
 - displayPriceLocal : DECIMAL(10,2)		
 - enabled : BOOLEAN						
-- brandTypeId : INT (FK)				
+- brandTypeId : INT (FK)		
+- currencyId : INT (FK)
+- rateId : INT (FK)
 
 
 ==============================================================
@@ -124,7 +153,8 @@
 - websiteId : INT (FK)				 	
 - name : VARCHAR(50)					
 - lastName : VARCHAR(50)				
-- email : VARCHAR(100)					
+- email : VARCHAR(100)		
+- password : VARBINARY			
 - phone : INT 							
 - creadetAt : TIMESTAMP					
 - enabled : BOOLEAN						
@@ -140,7 +170,7 @@
 ==============================================================
 |          				   orders	 	                     |
 ==============================================================
-##ordersStatus
+## ordersStatus
 - orderStatuId : INT AUTO_INCREMENT (PK)
 - orderStatusName : VARCHAR(20)			
 - orderStatuDescription : VARCHAR(100)	
@@ -151,6 +181,7 @@
 - customerId : INT (FK)
 - countryId : INT (FK)
 - orderStatuId : INT (FK)
+- orderNumber : INT
 - netAmountLocal : DECIMAL(10,2)
 - taxAmountLocal : DECIMAL(10,2)
 - totalGrossLocal : DECIMAL(10,2)
@@ -181,14 +212,14 @@
 
 ## shippingCarriers
 - carrierId : INT AUTO_INCREMENT (PK)
-- name : VARCHAR(50)
+- shippingCarrierName : VARCHAR(50)
 - lastName : VARCHAR(30)
 - contactInfo : VARCHAR(100)
-- trackingTemplate : TEXT
+- trackingTemplate : VARCHAR(200)
 
 ## shipmentsStatus
 - shipmentStatusId : INT AUTO_INCREMENT (PK)
-- name : VARCHAR(20)
+- shipmentStatusName : VARCHAR(20)
 - description : VARCHAR(50)
 
 ## shipments
@@ -209,6 +240,8 @@
 - shipmentStatusId : INT (FK)
 - statusDate : DATETIME
 - notes : VARCHAR(150)
+- evidence : VARCHAR(255)
+- addressId : INT (FK)
 
 
 ==============================================================
@@ -247,7 +280,7 @@
 - restrictionTypeId : INT (FK)
 - healthRegistrationNumber : VARCHAR(50)
 - registrationExpiration : DATE
-- restrictionDescription : TEXT
+- restrictionDescription : VARCHAR(150)
 - enabled : BOOLEAN
 
 ==============================================================
