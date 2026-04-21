@@ -32,9 +32,9 @@ DIFICULTADES:
 
 FACIL: 2, 8, 9, 10, 12
 
-MEDIO: 1, 5, 6, 7, 11
+MEDIO: 1, 5, 6, 7
 
-DIFICIL: 3, 4
+DIFICIL: 3, 4, 11
 
 
 

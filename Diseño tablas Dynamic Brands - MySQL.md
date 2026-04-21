@@ -72,9 +72,6 @@
 - brandTypeName : VARCHAR(50)			
 - brandTypeDescription : VARCHAR(100)	
 
-## productAttributes
-- attributeId : INT AUTO_INCREMENT (PK)
-- attributeName : VARCHAR(50)
 
 ## products
 - productId : INT AUTO_INCREMENT (PK)
@@ -83,15 +80,33 @@
 - productName : VARCHAR (100)				
 - enabled : BOOLEAN
 
-## productAttributeValues 
+## productAttributes
+- attributeId : INT AUTO_INCREMENT (PK)
+- attributeName : VARCHAR(50) -- (Ej: "Aroma", "Viscosidad", "Grado de Pureza")
+- enabled : BOOLEAN
+
+## categoryAttributes
+- categoryAttributeId : INT AUTO_INCREMENT (PK)
+- productCategoryId : INT (FK)
+- attributeId : INT (FK)
+
+## productAttributeValues
 - valueId : INT AUTO_INCREMENT (PK)
 - productId : INT (FK)
 - attributeId : INT (FK)
-- valueText : TEXT -- (Ej: "Lavanda", "500ml", "Aceitoso")
+- valueText : VARCHAR(255)  -- (Ej: "Menta", "Alta", "5.5")
+- updatedAt : TIMESTAMP
+- updatedBy : INT (FK)      -- userId
+- checksum : VARBINARY(32) 
+
+## hubZones
+- zoneId : INT AUTO_INCREMENT (PK)
+- zoneName : VARCHAR(50) -- (Cuarto Frío, Muelle, Carga, Peligrosos)
+- enabled : BOOLEAN
 
 ## hubLayout
 - locationId : INT AUTO_INCREMENT (PK)
-- zoneName : VARCHAR(20) -- (Carga, Empaque, Cuarto Frío)
+- zoneId : INT(FK) 
 - aisle : VARCHAR(10)    -- (Pasillo)
 - shelf : VARCHAR(10)    -- (Estante)
 - bin : VARCHAR(10)      -- (Caja/Gaveta)
@@ -145,12 +160,11 @@
 
 
 ==============================================================
-|          				   Customers 	                     |
+|          				        users 	                     |
 ==============================================================
 
-## customers
-- customerId : INT AUTO_INCREMENT (PK)
-- websiteId : INT (FK)				 	
+## users
+- userId : INT AUTO_INCREMENT (PK)			 	
 - name : VARCHAR(50)					
 - lastName : VARCHAR(50)				
 - email : VARCHAR(100)		
@@ -159,9 +173,9 @@
 - creadetAt : TIMESTAMP					
 - enabled : BOOLEAN						
 
-## customersAddresses
-- customerAddressId : INT AUTO_INCREMENT (PK)
-- customerId : INT (FK)					
+## usersAddresses
+- userAddressId : INT AUTO_INCREMENT (PK)
+- userId : INT (FK)					
 - addressID : INT (FK)					
 - enabled : BOOLEAN						
 - checksum : VARBINARY					
@@ -178,7 +192,7 @@
 ## orders
 - orderId : INT AUTO_INCREMENT(PK)
 - websiteId : INT (FK)
-- customerId : INT (FK)
+- userId : INT (FK)
 - countryId : INT (FK)
 - orderStatuId : INT (FK)
 - orderNumber : INT
@@ -206,9 +220,12 @@
 ## shippingMethods
 - methodId : INT AUTO_INCREMENT (PK)
 - methodName : VARCHAR(50) 		-- (Aéreo, Marítimo, Terrestre Moto, Terrestre Camión)
-- baseCostUSD : DECIMAL(10,2) 	-- Costo base del método
-- estimatedDays : INT
 - enabled : BOOLEAN
+
+## priceShippingMethod
+- priceMethodId : INT AUTO_INCREMENT (PK)
+- methodId : INT (FK)
+- price : DECIMAL(10,2)
 
 ## shippingCarriers
 - carrierId : INT AUTO_INCREMENT (PK)
@@ -216,6 +233,7 @@
 - lastName : VARCHAR(30)
 - contactInfo : VARCHAR(100)
 - trackingTemplate : VARCHAR(200)
+- enabled : BOOLEAN
 
 ## shipmentsStatus
 - shipmentStatusId : INT AUTO_INCREMENT (PK)
@@ -288,7 +306,7 @@
 ==============================================================
 ## sessions
 - sessionId : INT AUTO_INCREMENT (PK)
-- customerId : INT(FK)
+- userId : INT(FK)
 - sessionToken : VARCHAR(100)
 - creadetAt : TIMESTAMP
 
