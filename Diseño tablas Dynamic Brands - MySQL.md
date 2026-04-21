@@ -125,6 +125,8 @@
 - websiteId : INT (FK)
 - newPrice : DECIMAL(10,2)
 - changeDate : TIMESTAMP
+- updatedBy : INT (FK)      -- userId
+- checksum : VARBINARY(32) 
 
 ==============================================================
 |          				     Website 	                     |
@@ -134,7 +136,7 @@
 - countryId : INT (FK) 				
 - brandName : VARCHAR(150)				
 - domain : VARCHAR(32)					
-- marketingFocus : VARCHAR(200)			
+- marketingFocus : TEXT		
 - enabled : BOOLEAN																	
 - creadetAt : TIMESTAMP										
 
