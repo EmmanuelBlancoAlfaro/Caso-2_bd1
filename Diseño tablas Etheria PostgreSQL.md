@@ -1,102 +1,158 @@
-# tablas
+# tablas Etheria Globals
 
 ------------------- ADRESS PATTERN --------------------------------------------------
 
 		## Countries
 		- countryId: serial auto-increment (PK)
 		- isoCode: UNIQUE VARCHAR (3) 
-		- name: VARCHAR (50)
+		- countryName: VARCHAR (50)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 
 		## States
 		- stateId: serial auto-increment (PK)
 		- countryId: integer (FK)
-		- name: VARCHAR (40)
+		- stateName: VARCHAR (40)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 
 		## Cities
 		- cityId: serial auto-increment (PK)
 		- stateId: integer (FK)
-		- name: VARCHAR (50)
+		- cityName: VARCHAR (50)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 
 		## Addresses
 		- addressId: serial auto-increment (PK)
 		- cityId: integer (FK)
-		- address1: VARCHAR (100)
-		- address2: VARCHAR (100)
+		- address: VARCHAR (100)
 		- zipCode: VARCHAR (20)
+		- latitude: NUMERIC (9,6)
+		- longitude: NUMERIC (10,6)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
------------------ OTHER IMPORTANT TABLES / CONTACT INFO PATTERN ----------------------		
+----------------- CONTACT INFO PATTERN ----------------------------------------------		
 		
 		## Employees
 		- employeeId: serial auto-increment (PK)
-		- addresId: integer (FK)
-		- firstname: VARCHAR (20)
-		- lastname: VARCHAR (20)
-		- available: BOOLEAN
+		- addressId: integer (FK)
+		- firstName: VARCHAR (20)
+		- lastName: VARCHAR (20)
+		- isActive: BOOLEAN
 		- hiringDate: DATE
 		- createdAt: TIMESTAMP
 		- updatedAt: TIMESTAMP
-		- updatedByEmployeeId: integer (FK)
+		- updatedBy: integer (FK)
+		
+		## Suppliers 
+		- supplierId: serial auto-increment (PK)
+		- countryId: integer (FK)
+		- addressId: integer (FK)
+		- suplierName: VARCHAR (40)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+		
+		## Services Providers
+		- providerId: serial auto-increment (PK)
+		- countryId: integer (FK)
+		- addressId: integer (FK)
+		- providerName: VARCHAR (40)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## ContactTypes
 		- contactTypeId: serial auto-increment (PK)
-		- name: VARCHAR (10)
+		- contactTypeName: VARCHAR (50)
 		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
-		## EmployeeContacts
-		- employeeContactId: serial auto-increment (PK)
-		- employeeId: integer (FK)
+		
+		## Contacts
+		- contactId: serial auto-increment (PK)
+		- userId: integer (FK)
 		- contactTypeId: integer (FK)
-		- value: TEXT
-		- isPrincipal: BOOLEAN
-		
-		## Incoterms
-		- incotermId: serial auto-increment (PK)
-		- code: UNIQUE VARCHAR (3)
-		- description: VARCHAR (100)
-		
+		- value: VARCHAR (100)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+				
 			
 ----------------- MASTER - DETAIL ---------------------------------------------------
-
-		## Suppliers
-		- supplierId: serial auto-increment (PK)
-		- addresId: integer (FK)
-		- suplierName: VARCHAR (40)
+		
 	
-		## SuppliersContacts
-		- supplierContactId: serial auto-increment (PK)
-		- supplierId: integer (FK)
-		- contactTypeId: integer (FK)
-		- value: TEXT
-		- isPrincipal: BOOLEAN
+		## Incoterms
+		- incotermId: serial auto-increment (PK)
+		- incotermCode: UNIQUE VARCHAR (3)
+		- description: VARCHAR (100)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 	
 		## StatusTypes
 		- StatusTypeId: serial auto-increment (PK)
-		- name: VARCHAR (15)
+		- statusName: VARCHAR (15)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## ProductsCategories
 		- categoryId: serial auto-increment (PK)
-		- name: VARCHAR (40)
+		- categoryName: VARCHAR (40)
 		- description: VARCHAR (100)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## UnitsOfMeasure
-		- unitsOfMeasure: serial auto-increment (PK)
+		- unitOfMeasureId: serial auto-increment (PK)
 		- symbol: UNIQUE VARCHAR (5)
-		- name: VARCHAR (25)
+		- measureName: VARCHAR (25)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## PaymentMethods
 		- paymentMethodId: serial auto-increment (PK)
-		- name: VARCHAR (30)
+		- paymentMethodName: VARCHAR (30)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## CostsTypes
 		- costTypeId: serial auto-increment (PK)
 		- name: VARCHAR (50)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## Products
 		- ProductId: serial auto-increment (PK)
 		- categoryId: integer (FK)
 		- unitOfMeasureId: integer (FK)
 		- name: VARCHAR (40)
-		- dateOfImportation: DATE
 		- description: VARCHAR (100)
 		- isEnabled: boolean
 		
@@ -106,21 +162,37 @@
 		- incotermId: integer (FK)
 		- statusTypeId: integer (FK)
 		- paymentMethodId: integer (FK)
-		- order_date: DATE
-		- madeBy: integer (FK)
+		- currencyId: integer (FK)
+		- billOfLadinNumber: VARCHAR (12)
+		- orderDate: DATE
+		- expectedShipDate: DATE
+		- shippingDate: DATE
+		- estimatedDateOfArrival: DATE
+		- customsClearanceDate: DATE
+		- actualDeliveryDate: DATE
+		- createdBy: integer (FK)
+		- updatedBy: integer (FK) 
 		
 		## PurchaseOrdersDetails
 		- purchaseDetailId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
-		- ProductId: integer (FK)
-		- quantity: NUMERIC
-		- unitPriceUSD: NUMERIC
+		- productId: integer (FK)
+		- quantityOrdered: integer
+		- quantityReceived: integer
+		- unitPrice: NUMERIC (6, 2)
+		- subTotal: NUMERIC (10, 2)
+		- batchNumber: VARCHAR (20)
+		- expirationDate: DATE
+		- createdBy: integer (FK)
+		- updatedBy: integer (FK)
 
 		## PurchaseOrdersLandedCosts
 		- purchaseCostsId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
+		- providerId: integer (FK)
 		- costTypeId: integer (FK)
-		- amountUSD: NUMERIC
+		- totalAmount: NUMERIC (10, 2)
+		- currencyId: integer (FK)
 		- description: VARCHAR (150)
 		
 		
