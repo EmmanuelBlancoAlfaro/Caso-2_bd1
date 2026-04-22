@@ -58,8 +58,12 @@
 		- supplierId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- addressId: integer (FK)
-		- suplierName: VARCHAR (40)
+		- defaultCurrencyId: integer (FK)
+		- supplierName: VARCHAR (40)
+		- fdaRegistrationNumber: VARCHAR (50)
+		- taxIdentificationNumber: VARCHAR (50)
 		- isActive: BOOLEAN
+		- isGmpCertified: BOOLEAN 
 		- createdAt: TIMESTAMP
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
@@ -68,7 +72,13 @@
 		- providerId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- addressId: integer (FK)
+		- logisticsRoleId: integer (FK)
+		- transportMethodId: integer (FK)
 		- providerName: VARCHAR (40)
+		- trackingPortalUrl: VARCHAR (255)
+		- taxIdentificationNumber: VARCHAR (50)
+		- specificAttributes: JSONB
+		- liabilityInsuranceLimit: NUMERIC (12, 2)
 		- isActive: BOOLEAN
 		- createdAt: TIMESTAMP
 		- updatedAt: TIMESTAMP
@@ -85,7 +95,9 @@
 		
 		## Contacts
 		- contactId: serial auto-increment (PK)
-		- userId: integer (FK)
+		- employeeId: integer (FK) [NULLABLE]
+		- providerId: integer (FK) [NULLABLE]
+		- supplierId: integer (FK) [NULLABLE]
 		- contactTypeId: integer (FK)
 		- value: VARCHAR (100)
 		- isActive: BOOLEAN
@@ -93,9 +105,60 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 				
+----------------- CURRENCY PATTERN --------------------------------------------------
+
+		## Currencies
+		- currencyId: serial auto-increment (PK)
+		- currencySymbol: VARCHAR (5)
+		- currencyName: VARCHAR (40)
+		- isActive: BOOLEAN
+		- postTime: TIMESTAMP
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+
+		## ExchangeRates
+		- exchangeRateId: serial auto-increment (PK)
+		- currencyId1: integer (FK)
+		- currencyId2: integer (FK)
+		- exchangeRate: DECIMAL (18, 6)
+		- postTime: TIMESTAMP
+		- checkSum: BYTEA
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK) 
+
+		## ExchangeHistories
+		- exchangeHistoryId: serial auto-increment (PK)
+		- startDateTime: TIMESTAMP
+		- endDateTime: TIMESTAMP
+		- currencyId1: integer (FK)
+		- currencyId2: integer (FK)
+		- exchangeRate: DECIMAL (18, 6)
+		- postTime: TIMESTAMP
+		- checkSum: BYTEA
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+		- exchangeRateId: integer (FK)
 			
 ----------------- MASTER - DETAIL ---------------------------------------------------
 		
+		## LogisticsRoles
+		- logisticsRoleId: serial auto-increment (PK)
+		- roleName: VARCHAR (40)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+	
+		## TransportMethods
+		- transportMethodId: serial auto-increment (PK)
+		- transportName: VARCHAR (30)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 	
 		## Incoterms
 		- incotermId: serial auto-increment (PK)
@@ -109,6 +172,17 @@
 		## StatusTypes
 		- StatusTypeId: serial auto-increment (PK)
 		- statusName: VARCHAR (15)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+		
+		## CountriesRegulations
+		- countryRegulationId: serial auto-increment (PK)
+		- countryId: integer (FK)
+		- regulationName: VARCHAR (60)
+		- documentURL: VARCHAR (150)
+		- expiryDate: DATE
 		- isActive: BOOLEAN
 		- createdAt: TIMESTAMP
 		- updatedAt: TIMESTAMP
@@ -142,34 +216,49 @@
 		
 		## CostsTypes
 		- costTypeId: serial auto-increment (PK)
-		- name: VARCHAR (50)
+		- costTypeName: VARCHAR (50)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
+		
+		## IncotermsRules
+		- ruleId: serial auto-increment (PK)
+		- incotermId: integer (FK)
+		- costTypeId: integer (FK)
+		- isImporterResponsibility: BOOLEAN
 		- isActive: BOOLEAN
 		- createdAt: TIMESTAMP
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
 		## Products
-		- ProductId: serial auto-increment (PK)
+		- productId: serial auto-increment (PK)
 		- categoryId: integer (FK)
 		- unitOfMeasureId: integer (FK)
-		- name: VARCHAR (40)
+		- productName: VARCHAR (40)
 		- description: VARCHAR (100)
-		- isEnabled: boolean
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		## PurchaseOrders
 		- purchaseOrderId: serial auto-increment (PK)
 		- supplierId: integer (FK)
-		- incotermId: integer (FK)
-		- statusTypeId: integer (FK)
 		- paymentMethodId: integer (FK)
-		- currencyId: integer (FK)
-		- billOfLadinNumber: VARCHAR (12)
+		- incotermId: integer (FK)
+		- destinationAddressId: integer (FK)
+		- supplierCurrencyId: integer (FK)
+		- etheriaCurrencyId: integer (FK)
+		- currentStatusId: integer (FK)
+		- exchangeRate: DECIMAL (18, 6)
+		- billOfLadingNumber: VARCHAR (12)
 		- orderDate: DATE
-		- expectedShipDate: DATE
-		- shippingDate: DATE
-		- estimatedDateOfArrival: DATE
-		- customsClearanceDate: DATE
-		- actualDeliveryDate: DATE
+		- duePaymentDate: DATE
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
 		- createdBy: integer (FK)
 		- updatedBy: integer (FK) 
 		
@@ -179,22 +268,60 @@
 		- productId: integer (FK)
 		- quantityOrdered: integer
 		- quantityReceived: integer
-		- unitPrice: NUMERIC (6, 2)
-		- subTotal: NUMERIC (10, 2)
+		- originalUnitPrice: NUMERIC (10, 2)
+		- originalSubTotal: NUMERIC (12, 2)
+		- unitPriceUSD: NUMERIC (10, 2)
+		- subTotalUSD: NUMERIC (12, 2)
 		- batchNumber: VARCHAR (20)
 		- expirationDate: DATE
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
 		- createdBy: integer (FK)
 		- updatedBy: integer (FK)
-
+		
 		## PurchaseOrdersLandedCosts
 		- purchaseCostsId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
 		- providerId: integer (FK)
 		- costTypeId: integer (FK)
-		- totalAmount: NUMERIC (10, 2)
+		- originalAmount: NUMERIC (10, 2)
+		- exchangeRate: DECIMAL (18, 6)
+		- totalAmountUSD: NUMERIC (10, 2)
 		- currencyId: integer (FK)
 		- description: VARCHAR (150)
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- createdBy: integer (FK)
+		- updatedBy: integer (FK)
+		
+		## PurchaseOrdersTracking
+		- orderTrackingId: serial auto-increment (PK)
+		- purchaseOrderId: integer (FK)
+		- statusTypeId: integer (FK)
+		- currentAddressId: integer (FK)
+		- eventDate: TIMESTAMP
+		- auditInfo: JSONB
+		- isActive: BOOLEAN
+		- createdAt: TIMESTAMP
+		- updatedAt: TIMESTAMP
+		- updatedBy: integer (FK)
 		
 		
 		
 		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+	
