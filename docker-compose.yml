@@ -1,0 +1,55 @@
+services:
+  # 1. Base de Datos Central (Data Warehouse - PostgreSQL)
+  # Es la que hará el ETL y usará mysql_fdw
+  dw-db:
+    image: postgres:15
+    container_name: data_warehouse_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: tu_password_seguro
+      POSTGRES_DB: data_warehouse
+    ports:
+      - "5433:5432" # Puerto mapeado al 5433 para no chocar con Etheria
+
+  # 2. Base de Datos Operativa (Etheria - PostgreSQL)
+  # Contiene Landed Costs y Aranceles
+  postgres-db:
+    image: postgres:15
+    container_name: etheria_db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: tu_password_seguro
+      POSTGRES_DB: etheria
+    ports:
+      - "5432:5432"
+
+  # 3. Base de Datos Comercial (Dynamic Brands - MySQL)
+  # Contiene Ventas e Impuestos al consumidor
+  mysql-db:
+    image: mysql:8.0
+    container_name: dynamic_brands_db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: tu_password_seguro
+      MYSQL_DATABASE: dynamic_brands
+    ports:
+      - "3306:3306"
+
+  # Administrador Visual
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_cloud
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@tuproyecto.com
+      PGADMIN_DEFAULT_PASSWORD: admin_password
+    ports:
+      - "8080:80"
+    depends_on:
+      - dw-db
+      - postgres-db
+      - mysql-db
+
+networks:
+  default:
+    name: proyecto_integrador_net
