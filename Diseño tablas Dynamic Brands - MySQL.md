@@ -80,6 +80,7 @@
 - productName : VARCHAR (100)				
 - enabled : BOOLEAN
 
+
 ## productAttributes
 - attributeId : INT AUTO_INCREMENT (PK)
 - attributeName : VARCHAR(50) -- (Ej: "Aroma", "Viscosidad", "Grado de Pureza")
@@ -95,9 +96,6 @@
 - productId : INT (FK)
 - attributeId : INT (FK)
 - valueText : VARCHAR(255)  -- (Ej: "Menta", "Alta", "5.5")
-- updatedAt : TIMESTAMP
-- updatedBy : INT (FK)      -- userId
-- checksum : VARBINARY(32) 
 
 ## hubZones
 - zoneId : INT AUTO_INCREMENT (PK)
@@ -262,6 +260,7 @@
 - notes : VARCHAR(150)
 - evidence : VARCHAR(255)
 - addressId : INT (FK)
+
 
 
 ==============================================================
