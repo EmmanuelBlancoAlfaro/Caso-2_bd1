@@ -61,14 +61,15 @@
 4. Ahora que ya tenemos todo esto podemos ubicar un producto, ahora se pasan con las caracteristicas que debe tener un producto
 4.1 UnitsOfMeasures, unidad de medida, no hay mucho
 4.2 productCategories, categoria del producto ya que para el dashboard va a ser importante y segun su categoria tiene caracteristicas o incluso restricciones o impuestos segun su categoria
-4.3 BrandsPositionsTypes y brands, esto se usa hasta la websites porque hasta que no se cree la pagina web de la tienda, no conocemos su marca y ocupamos su tipo porque dependiendo si es premium, Eco-friendly o etc
+4.3 BrandsPositionsTypes, esto se usa hasta la websites porque hasta que no se cree la pagina web de la tienda, no conocemos su marca y ocupamos su tipo porque dependiendo si es premium, Eco-friendly o etc
 5. Ahora si el producto en si
 5.1 Products, bueno esto simplemente son fk a las tablas anteriormente mencionadas, agregando el nombre y si esta activo el producto
 5.2 productAttributes, como su nombre indica es tener los atributos de cierto producto, pero este se puede repetir, entonces no se lo asignamos a un producto especifico
 5.3 categoryAttributes, Debemos tener los atributos por categoria del producto, ya que muchos productos de x categoria tienen mismos atributos, entonces es mucho mas facil obtener los atributos segun su categoria
 5.4 productAttributeValues, ahora si segun los atributos por categoria o atributos unicos de x producto se lo asignamos al producto.
-5.5 productInventory,  
-5.6 productPriceHistory
+6. Ahora ya que tenemos todo esto podemos obtener toda la informacion de un producto mas a detalle.
+6.1 productInventory,  esta tabla ya es para conocer mas a detalle todo sobre un producto, lote en que se trajo, lugar exacto, cantidad actual en el inventario y ultima vez que se actualizo
+6.2 productPriceHistory, esta tabla es para conocer como va cambiando el precio de x producto durante toda la historia, tenemos su webSite porque su precio puede cambiar en un pais y en otro no, ademas debemos saber quien lo actualizo y cuando fue, y bueno lo mas importante su precio nuevo, el decimal puede ser un poco grande al permitir hasta 10 numeros antes del decimal y unicamente dos despues, pero esto cubre lo suficiente.
 
 ## batch
 - batchId : INT AUTO_INCREMENT (FK)
@@ -91,11 +92,6 @@
 - brandTypeId : INT AUTO_INCREMENT (PK)
 - brandTypeName : VARCHAR(50)			
 - brandTypeDescription : VARCHAR(100)	
-
-## Brands
-- brandId : INT AUTO_INCREMENT (PK)
-- brandName : VARCHAR(50)	
-- brandTypeId : INT (FK)
 
 ## products
 - productId : INT AUTO_INCREMENT (PK)
@@ -152,8 +148,14 @@
 ==============================================================
 |          				     Website 	                     |
 ==============================================================
+## FUNCION: Esta es mas pequeña pero igual se ocupa saber porque se hacen las cosas
+1. websites, cada web debe estar relacionada a un pais, debe tener una marca un dominio, es decir para ingresar a esta, el marketingFocus, saber a que se va a enfocar con todo especificado el como se ira a enfocar, saber si esta disponible y cuando se creo.
+2. websiteThemes, bueno esto va relacionado al marketingFocus ya que todo el tema y como se va a ver la website debe ser conforme al focus del marketing (no se como traducir el marketingFocus xD, pero se entiende la idea).
+3. websitesProducts, ahora si los productos que se venderan en la website, aqui todo sera muy repetido a los productos en si, aqui lo unico mas importante es el brandType, ya que los usuarios deben saber que tipo de producto es, es decir, si es premium, eco-friendly, etc. Y lo otro seria el rateId para conocer la ganancia o la diferencia entre la moneda local a la de USD. Lo demas ya se ha explicado anteriormente.
+
+
 ## websites
-- websiteI.d : INT AUTO_INCREMENT (PK)
+- websiteId : INT AUTO_INCREMENT (PK)
 - countryId : INT (FK) 				
 - brandName : VARCHAR(150)				
 - domain : VARCHAR(32)					
@@ -177,7 +179,7 @@
 - displayName : VARCHAR(100)			
 - displayPriceLocal : DECIMAL(10,2)		
 - enabled : BOOLEAN						
-- brandId : INT (FK)		
+- brandTypeId : INT (FK)		
 - currencyId : INT (FK)
 - rateId : INT (FK)
 
@@ -185,6 +187,7 @@
 ==============================================================
 |          				        users 	                     |
 ==============================================================
+## FUNCION: Aqui nada mas son los usuarios del sistema, no hay mucha explicacion es bastante obvio todo
 
 ## users
 - userId : INT AUTO_INCREMENT (PK)			 	
@@ -207,6 +210,16 @@
 ==============================================================
 |          				   orders	 	                     |
 ==============================================================
+## FUNCION: Las ordenes ocupan una explicacion corta pero no es dificil de comprender
+1. ordersStatus, tabla para conocer el estado de la orden
+2. orders, Esta tabla si es bastante grande y ocupa mucha explicacion
+2.1 Debe tener de la webSite que se compro
+2.2 El usuario quien la compro
+2.3 Su estado y numero de orden
+2.4 El valor neto, impuesto y el total en local, además del precio neto en USD y el cambio de moneda
+2.5 La fecha en que se hizo la orden
+3. orderItems, esta es mas desglosado por item, donde obtenemos el precio del item en local y USD, el total y los impuestos en el pais, ademas de la cantidad que se desea comprar de ese producto.
+
 ## ordersStatus
 - orderStatuId : INT AUTO_INCREMENT (PK)
 - orderStatusName : VARCHAR(20)			
@@ -240,6 +253,14 @@
 ==============================================================
 |            		orderTransportation	 	                 |                                     
 ==============================================================
+## FUNCION: ESTA ES LA DE ORDENES Y DONDE VAMOS A APLICAR LA MAYOR CANTIDAD DE TRAZABILIDAD PARA PODER TENER TODO EL RECORRIDO DE LA ORDEN
+1. shippingMethods, esta tabla es para normalizar el shipments, para saber el metodo de envio y si esta habilitado
+2. priceShippingMethod, el precio que conlleva ese metodo
+3. shippingCarriers, conocer a la persona que va a llevarlo y la columna de tranckingTemplate es para tener un link al recorrido del transportista
+4. shipmentsStatus, para conocer el estado del envio
+5. shipments, Ahora si este es mas importante y casi todo son FK con el orden, metodo, quien lo lleva, estado, lugar, cuando salio y cuando llego(puede ser null), fecha en la que podria llegar y los impuestos del envio
+6. shipmentsStatusHistory, conocer el proceso de x envio
+
 ## shippingMethods
 - methodId : INT AUTO_INCREMENT (PK)
 - methodName : VARCHAR(50) 		-- (Aéreo, Marítimo, Terrestre Moto, Terrestre Camión)
@@ -289,6 +310,15 @@
 ==============================================================
 |        	taxes and restriction per product	 	         |                                     
 ==============================================================
+## FUNCION: Conocer los impuestos y restricciones por producto (Esta puede ser la mas dificil de entender)
+1. taxesTypes, ya que algunos impuestos son como el iva, selectivos, a la salud, etc.
+2. shippingTaxes, impuesto por envio, no hay mucho, si es una moto va a pagar mas o menos que un vehiculo.
+3. taxesPerCountry, cada pais tiene diferentes tipos de impuestos y estos comunmente es por categoria de producto, ademas tse saben de que dia a que dia esta este impuesto.
+4. restrictionsTypes, Tipos de restriccion para normalizar las restricciones, como una marca que no puede ingresar a x pais, por ejemplo a Rusia o China
+5. productRestrictionsPerCountry, no todos los productos son permitidos en cada pais, entonces algunos no estan restringidos o incluso algunos solo son permitidos si son de una marca eco-friendly o etc.
+5.1 El healthRegistrationNumber se usa porque en algunos paises se necesita una etiqueta especifica para que ingrese x producto si tiene algun quimico
+5.2 registrationExpiration, los permisos de salud vencen
+
 ## taxesTypes
 - taxTypeId : INT AUTO_INCREMENT(PK)
 - taxTypeName : VARCHAR(100)
@@ -328,6 +358,8 @@
 ==============================================================
 |        					logs              	 	         |                                     
 ==============================================================
+## FUNCION: LOG PATTERN y las sesiones a la pagina web fin xD
+
 ## sessions
 - sessionId : INT AUTO_INCREMENT (PK)
 - userId : INT(FK)
