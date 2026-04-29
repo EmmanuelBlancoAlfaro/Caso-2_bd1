@@ -2,6 +2,8 @@
 ==============================================================
 |          				   Currency	                     	 | 
 ==============================================================
+## FUNCION: al igual que la de etheria ocupamos saber el tipo de moneda a la que se vendio en este caso si se exporto a costa rica se vende en colones y por lo tanto debemos obtener el cambio de moneda.
+
 ## Currency
 - currencyId : INT AUTO_INCREMENT (PK)
 - name : VARCHAR(50)				
@@ -16,6 +18,8 @@
 ==============================================================
 |          				   Addresses	                     |
 ==============================================================
+## FUNCION: Adresses pattern para tener la ubicacion no hay mas.
+
 ## countries
 - countryId : INT AUTO_INCREMENT (PK)
 - isoCode : VARCHAR(3) 	 				
@@ -50,6 +54,22 @@
 ==============================================================
 |          				HUB NICARAGUA                    	 | 
 ==============================================================
+## FUNCION: Bueno este si es un poco mas grande y se divide en varias partes, primero unicamente el HUB
+1. Primero la ubicacion y estas cosas, el batch es el lote en el que venia x producto
+2. hubZones conocer el lugar donde se ubica dentro del hub 
+3. hubLayout lugar mas exacto dentro del hub (Zona ,Pasillo, Estante, Caja/Gaveta)
+4. Ahora que ya tenemos todo esto podemos ubicar un producto, ahora se pasan con las caracteristicas que debe tener un producto
+4.1 UnitsOfMeasures, unidad de medida, no hay mucho
+4.2 productCategories, categoria del producto ya que para el dashboard va a ser importante y segun su categoria tiene caracteristicas o incluso restricciones o impuestos segun su categoria
+4.3 BrandsPositionsTypes y brands, esto se usa hasta la websites porque hasta que no se cree la pagina web de la tienda, no conocemos su marca y ocupamos su tipo porque dependiendo si es premium, Eco-friendly o etc
+5. Ahora si el producto en si
+5.1 Products, bueno esto simplemente son fk a las tablas anteriormente mencionadas, agregando el nombre y si esta activo el producto
+5.2 productAttributes, como su nombre indica es tener los atributos de cierto producto, pero este se puede repetir, entonces no se lo asignamos a un producto especifico
+5.3 categoryAttributes, Debemos tener los atributos por categoria del producto, ya que muchos productos de x categoria tienen mismos atributos, entonces es mucho mas facil obtener los atributos segun su categoria
+5.4 productAttributeValues, ahora si segun los atributos por categoria o atributos unicos de x producto se lo asignamos al producto.
+5.5 productInventory,  
+5.6 productPriceHistory
+
 ## batch
 - batchId : INT AUTO_INCREMENT (FK)
 - batchNumber : INT 
@@ -72,6 +92,10 @@
 - brandTypeName : VARCHAR(50)			
 - brandTypeDescription : VARCHAR(100)	
 
+## Brands
+- brandId : INT AUTO_INCREMENT (PK)
+- brandName : VARCHAR(50)	
+- brandTypeId : INT (FK)
 
 ## products
 - productId : INT AUTO_INCREMENT (PK)
@@ -79,7 +103,6 @@
 - unitOfMeasureId : INT (FK)		
 - productName : VARCHAR (100)				
 - enabled : BOOLEAN
-
 
 ## productAttributes
 - attributeId : INT AUTO_INCREMENT (PK)
@@ -130,7 +153,7 @@
 |          				     Website 	                     |
 ==============================================================
 ## websites
-- websiteId : INT AUTO_INCREMENT (PK)
+- websiteI.d : INT AUTO_INCREMENT (PK)
 - countryId : INT (FK) 				
 - brandName : VARCHAR(150)				
 - domain : VARCHAR(32)					
@@ -154,7 +177,7 @@
 - displayName : VARCHAR(100)			
 - displayPriceLocal : DECIMAL(10,2)		
 - enabled : BOOLEAN						
-- brandTypeId : INT (FK)		
+- brandId : INT (FK)		
 - currencyId : INT (FK)
 - rateId : INT (FK)
 
