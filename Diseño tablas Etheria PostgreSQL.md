@@ -1,7 +1,7 @@
 # tablas Etheria Globals
 
 ------------------- ADRESS PATTERN --------------------------------------------------
-
+## FUNCION: Adressess pattern no hay mas
 		## Countries
 		- countryId: serial auto-increment (PK)
 		- isoCode: UNIQUE VARCHAR (3) 
@@ -42,7 +42,9 @@
 		- updatedBy: integer (FK)
 		
 ----------------- CONTACT INFO PATTERN ----------------------------------------------		
-		
+## FUNCION: 
+
+
 		## Employees
 		- employeeId: serial auto-increment (PK)
 		- addressId: integer (FK)
@@ -106,6 +108,7 @@
 		- updatedBy: integer (FK)
 				
 ----------------- CURRENCY PATTERN --------------------------------------------------
+## FUNCION: CURRENCY PATTERN no hay mas xD
 
 		## Currencies
 		- currencyId: serial auto-increment (PK)
@@ -143,7 +146,9 @@
 		- exchangeRateId: integer (FK)
 			
 ----------------- MASTER - DETAIL ---------------------------------------------------
-		
+## FUNCION:
+
+
 		## LogisticsRoles
 		- logisticsRoleId: serial auto-increment (PK)
 		- roleName: VARCHAR (40)
@@ -309,19 +314,3 @@
 		- updatedBy: integer (FK)
 		
 		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-		
-	
