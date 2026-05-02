@@ -121,7 +121,7 @@ BEGIN
         INSERT INTO products (productCategoryId, unitOfMeasureId, productName, enabled)
         -- Alterna entre categorías de calzado y accesorios para diversificar el inventario, usando los IDs capturados dinámicamente
         -- El if determina que si es impar usa la categoría de accesorios, y si es par usa la categoría de calzado, para asegurar una distribución equilibrada
-        VALUES (IF(i % 2 = 0, v_cat_calzado, v_cat_acc), v_uom_par, CONCAT('Producto de Calzado Mod-', i), 1);
+        VALUES (IF(i % 2 = 0, v_cat_calzado, v_cat_acc), v_uom_par, CONCAT('Etheria Item', i), 1);
         SET i = i + 1;
     END WHILE;
 
