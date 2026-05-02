@@ -15,20 +15,25 @@ DELIMITER //
 -- 1. PROCEDIMIENTO DE AUDITORÍA (LOGS)
 -- =============================================
 CREATE PROCEDURE sp_log_step(
+    -- Parámetros para el log de auditoría
     IN p_orderId INT, 
     IN p_statusName VARCHAR(50), 
     IN p_stepName VARCHAR(100), 
     IN p_obs TEXT
 )
 BEGIN
+    -- Variable para el ID del estado
     DECLARE v_statusId INT;
-    -- Busca el estado o lo crea si no existe
+    -- Si existe algun estado con el nombre dado, se obtiene su ID, sino se crea uno nuevo
     SELECT statusTypeId INTO v_statusId FROM statusTransactionType WHERE statusName = p_statusName LIMIT 1;
+    
+    -- Aqui se crea un nuevo estado si no existe, y se obtiene su ID para usarlo en el log de transacciones
     IF v_statusId IS NULL THEN
         INSERT INTO statusTransactionType (statusName, statusDescription) 
         VALUES (p_statusName, CONCAT('Estado: ', p_statusName));
         SET v_statusId = LAST_INSERT_ID();
     END IF;
+
     -- Inserta el log en la tabla de estados
     INSERT INTO spTransactionState (orderId, statusTypeId, stepName, observations)
     VALUES (p_orderId, v_statusId, p_stepName, p_obs);
@@ -39,25 +44,29 @@ END //
 -- =============================================
 CREATE PROCEDURE sp_load_base_data()
 BEGIN
+    -- Variables para capturar IDs de monedas insertadas dinámicamente
     DECLARE v_curr_colon, v_curr_dolar, v_curr_euro, v_curr_mx, v_curr_col INT;
     
+    -- Manejo de errores para asegurar que cualquier fallo en la inserción de datos se capture y se registre adecuadamente
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        -- Captura del mensaje de error y registro en el log de auditoría
         GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
         ROLLBACK;
+        -- Registro del error en el log de auditoría con el mensaje capturado
         CALL sp_log_step(NULL, 'ERROR', 'Carga Base', @msg);
     END;
 
     START TRANSACTION;
     
-    -- Insertar Monedas y capturar IDs dinámicamente[cite: 3]
+    -- Insertar Monedas y capturar IDs dinámicamente
     INSERT INTO Currency (name, simbol) VALUES ('Colon', '₡'); SET v_curr_colon = LAST_INSERT_ID();
     INSERT INTO Currency (name, simbol) VALUES ('Dolar', '$'); SET v_curr_dolar = LAST_INSERT_ID();
     INSERT INTO Currency (name, simbol) VALUES ('Euro', '€'); SET v_curr_euro = LAST_INSERT_ID();
     INSERT INTO Currency (name, simbol) VALUES ('Peso MX', '$'); SET v_curr_mx = LAST_INSERT_ID();
     INSERT INTO Currency (name, simbol) VALUES ('Peso COL', '$'); SET v_curr_col = LAST_INSERT_ID();
 
-    -- Insertar Países vinculados a las monedas[cite: 3]
+    -- Insertar Países vinculados a las monedas
     INSERT INTO countries (isoCode, countryName, currencyId, enabled) VALUES 
     ('CRC', 'Costa Rica', v_curr_colon, 1),
     ('USA', 'USA', v_curr_dolar, 1),
@@ -65,10 +74,11 @@ BEGIN
     ('MEX', 'México', v_curr_mx, 1),
     ('COL', 'Colombia', v_curr_col, 1);
 
-    -- Tipos de Posicionamiento[cite: 3]
+    -- Tipos de Posicionamiento de Marca
     INSERT INTO BrandsPositionsTypes (brandTypeName, brandTypeDescription) 
     VALUES ('Premium', 'Lujo y Exclusividad'), ('Eco', 'Sostenibilidad y Ambiente');
 
+    -- Log de éxito para la carga base
     CALL sp_log_step(NULL, 'EXITO', 'Carga Base', 'Configuración de países y monedas completada.');
     COMMIT;
 END //
@@ -78,29 +88,39 @@ END //
 -- =============================================
 CREATE PROCEDURE sp_load_100_products()
 BEGIN
+    -- Variables para controlar el bucle y almacenar IDs de categorías y unidades de medida
     DECLARE i INT DEFAULT 1;
     DECLARE v_cat_calzado, v_cat_acc, v_uom_par INT;
 
+    -- Manejo de errores para asegurar que cualquier fallo en la inserción de productos se capture y se registre adecuadamente
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        -- Captura del mensaje de error y registro en el log de auditoría
         GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
         ROLLBACK;
         CALL sp_log_step(NULL, 'ERROR', 'Productos', @msg);
     END;
 
+    -- Inicia la transacción para la inserción de productos
     START TRANSACTION;
-    -- Categorías y Unidades[cite: 3]
+
+    -- Categorías y Unidades
     INSERT INTO productCategories (name, description, healthRiskLevel) 
     VALUES ('Calzado', 'Todo tipo de zapatos', 'Bajo'), ('Accesorios', 'Complementos', 'Bajo');
+    
+    -- Captura de IDs de categorías para usarlos en la inserción de productos
     SET v_cat_calzado = (SELECT productCategoryId FROM productCategories WHERE name = 'Calzado' LIMIT 1);
     SET v_cat_acc = (SELECT productCategoryId FROM productCategories WHERE name = 'Accesorios' LIMIT 1);
 
+    -- Inserción de unidad de medida para pares de unidades y captura de su ID para usarlo en los productos
     INSERT INTO UnitsOfMeasures (symbol, name) VALUES ('PAR', 'Par de unidades');
     SET v_uom_par = LAST_INSERT_ID();
 
-    -- Bucle para 100 productos[cite: 3]
+    -- Bucle para 100 productos
     WHILE i <= 100 DO
         INSERT INTO products (productCategoryId, unitOfMeasureId, productName, enabled)
+        -- Alterna entre categorías de calzado y accesorios para diversificar el inventario, usando los IDs capturados dinámicamente
+        -- El if determina que si es impar usa la categoría de accesorios, y si es par usa la categoría de calzado, para asegurar una distribución equilibrada
         VALUES (IF(i % 2 = 0, v_cat_calzado, v_cat_acc), v_uom_par, CONCAT('Producto de Calzado Mod-', i), 1);
         SET i = i + 1;
     END WHILE;
