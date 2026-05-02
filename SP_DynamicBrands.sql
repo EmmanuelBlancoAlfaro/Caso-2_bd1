@@ -193,7 +193,6 @@ SELECT * FROM spTransactionState;
 -- =============================================
 -- 6. SIMULACIÓN DE ACTIVIDAD DE NEGOCIO (Órdenes, Inventario, Precios). Esto no se pide en el .md del caso#2 pero es para poder informacion extra en el dashboard
 -- =============================================
-
 USE dynamic_brands;
 
 DELIMITER //
@@ -204,9 +203,15 @@ BEGIN
     DECLARE v_order_id INT;
     DECLARE v_product_id INT;
     DECLARE v_website_id INT;
+    DECLARE v_user_id INT;
+    DECLARE v_status_id INT;
     DECLARE v_country_id INT;
+    DECLARE v_method_id INT; 
+    DECLARE v_carrier_id INT; 
+    DECLARE v_ship_status_id INT; 
+    DECLARE v_random_price DECIMAL(10,2);
 
-    -- Manejo de errores[cite: 3]
+    -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
@@ -216,56 +221,80 @@ BEGIN
 
     START TRANSACTION;
 
-    -- 1. CREAR USUARIOS DE PRUEBA
-    INSERT INTO users (name, lastName, email, enabled) VALUES 
-    ('Juan', 'Pérez', 'juan@mail.com', 1),
-    ('María', 'García', 'maria@mail.com', 1),
-    ('John', 'Doe', 'john@mail.us', 1);
+    -- 1. GARANTIZAR TABLAS MAESTRAS (Si están vacías, las llena)
+    INSERT IGNORE INTO users (name, lastName, email, enabled) 
+    VALUES ('Juan Pérez', 'Alfaro', 'juan@mail.com', 1);
 
-    -- 2. ASIGNAR INVENTARIO Y COSTOS (Para poder calcular ganancias)
-    -- Vamos a recorrer los 100 productos y darles un stock y un costo base
+    INSERT IGNORE INTO ordersStatus (orderStatuId, orderStatusName, orderStatuDescription) 
+    VALUES (1, 'Pendiente', 'Orden recibida');
+
+    INSERT IGNORE INTO shippingMethods (methodId, methodName, enabled) 
+    VALUES (1, 'Terrestre', 1);
+
+    INSERT IGNORE INTO shippingCarriers (carrierId, shippingCarrierName, enabled) 
+    VALUES (1, 'Correos de Costa Rica', 1);
+
+    INSERT IGNORE INTO shipmentsStatus (shipmentStatusId, shipmentStatusName) 
+    VALUES (1, 'En Bodega');
+
+    -- 2. CARGA DE INVENTARIO Y PRECIOS (100 Productos)
     SET i = 1;
     WHILE i <= 100 DO
+        SELECT websiteId INTO v_website_id FROM websites ORDER BY RAND() LIMIT 1;
+
         INSERT INTO productInventory (productId, currentStock, lastUpdated)
         VALUES (i, FLOOR(10 + (RAND() * 50)), NOW());
         
-        -- Historial de precios (Precio de Venta sugerido)
         INSERT INTO productPriceHistory (productId, websiteId, newPrice, changeDate)
-        VALUES (i, (i % 9) + 1, (20 + (RAND() * 80)), NOW());
+        VALUES (i, v_website_id, ROUND((20 + (RAND() * 80)), 2), NOW());
         
         SET i = i + 1;
     END WHILE;
 
-    -- 3. SIMULAR 50 ÓRDENES ALEATORIAS[cite: 6]
+    -- 3. CARGA DE ÓRDENES Y ENVÍOS (50 Órdenes)
     SET i = 1;
     WHILE i <= 50 DO
-        -- Seleccionamos un sitio web y un producto al azar
-        SET v_website_id = (SELECT websiteId FROM websites ORDER BY RAND() LIMIT 1);
-        SET v_country_id = (SELECT countryId FROM websites WHERE websiteId = v_website_id);
-        SET v_product_id = (SELECT productId FROM products ORDER BY RAND() LIMIT 1);
-
-        -- Insertar la Orden[cite: 6]
-        INSERT INTO orders (websiteId, userId, countryId, orderNumber, netAmountLocal, totalGrossLocal, orderDate)
-        VALUES (v_website_id, (i % 3) + 1, v_country_id, 1000 + i, 50.00, 56.50, DATE_SUB(NOW(), INTERVAL i DAY));
+        -- Captura de IDs reales para evitar errores de FK
+        SELECT websiteId, countryId INTO v_website_id, v_country_id FROM websites ORDER BY RAND() LIMIT 1;
+        SELECT userId INTO v_user_id FROM users ORDER BY RAND() LIMIT 1;
+        SELECT orderStatuId INTO v_status_id FROM ordersStatus ORDER BY RAND() LIMIT 1;
+        SELECT methodId INTO v_method_id FROM shippingMethods ORDER BY RAND() LIMIT 1;
+        SELECT carrierId INTO v_carrier_id FROM shippingCarriers ORDER BY RAND() LIMIT 1;
+        SELECT shipmentStatusId INTO v_ship_status_id FROM shipmentsStatus ORDER BY RAND() LIMIT 1;
         
+        SET v_product_id = (SELECT productId FROM products ORDER BY RAND() LIMIT 1);
+        SET v_random_price = ROUND((30 + (RAND() * 70)), 2);
+
+        -- Inserción de la Orden
+        INSERT INTO orders (
+            websiteId, userId, countryId, orderNumber, 
+            netAmountLocal, taxAmountLocal, totalGrossLocal, 
+            orderDate, orderStatuId
+        )
+        VALUES (
+            v_website_id, v_user_id, v_country_id, 7000 + i, 
+            v_random_price, ROUND(v_random_price * 0.13, 2), 
+            ROUND(v_random_price * 1.13, 2), DATE(DATE_SUB(NOW(), INTERVAL i DAY)), 
+            v_status_id
+        );
+
         SET v_order_id = LAST_INSERT_ID();
 
-        -- Insertar el Item de la orden[cite: 6]
-        INSERT INTO orderItems (orderId, productId, quantity, itemPriceLocal, itemTotalLocal)
-        VALUES (v_order_id, v_product_id, FLOOR(1 + RAND() * 3), 50.00, 50.00);
+        -- Inserción del Item
+        INSERT INTO orderItems (orderId, productId, quantity, itemPriceLocal, itemTotalLocal, taxLocal)
+        VALUES (v_order_id, v_product_id, FLOOR(1 + RAND() * 2), v_random_price, v_random_price, ROUND(v_random_price * 0.13, 2));
 
-        -- 4. SIMULAR ENVÍO (Para ver pérdidas/gastos logísticos)[cite: 6]
+        -- Inserción del Envío (VALIDADO DINÁMICAMENTE)
         INSERT INTO shipments (orderId, methodId, carrierId, shipmentStatusId, shippedAt)
-        VALUES (v_order_id, 1, 1, 1, NOW());
+        VALUES (v_order_id, v_method_id, v_carrier_id, v_ship_status_id, NOW());
 
         SET i = i + 1;
     END WHILE;
 
-    CALL sp_log_step(NULL, 'EXITO', 'Actividad Negocio', 'Inventario, Precios y 50 Órdenes generadas.');
+    CALL sp_log_step(NULL, 'EXITO', 'Actividad Negocio', 'Carga total exitosa: Todos los catálogos validados.');
     COMMIT;
 END //
 
 DELIMITER ;
 
--- Ejecutar la carga
 CALL sp_load_business_activity();
