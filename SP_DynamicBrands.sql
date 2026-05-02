@@ -134,8 +134,11 @@ END //
 -- =============================================
 CREATE PROCEDURE sp_load_9_websites()
 BEGIN
+
+    -- Manejo de errores para asegurar que cualquier fallo en la inserción de sitios web se capture y se registre adecuadamente
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        -- Captura del mensaje de error y registro en el log de auditoría
         GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
         ROLLBACK;
         CALL sp_log_step(NULL, 'ERROR', 'Websites', @msg);
@@ -154,6 +157,7 @@ BEGIN
     (5, 'Andina CO', 'andina.co', 'Tradicional', 1),
     (5, 'Bogota Run', 'bogota.co', 'Deportivo', 1);
 
+    -- Log de éxito para la carga de sitios web
     CALL sp_log_step(NULL, 'EXITO', 'Websites', '9 sitios web configurados.');
     COMMIT;
 END //
@@ -163,6 +167,7 @@ END //
 -- =============================================
 CREATE PROCEDURE sp_orchestrate_full_load()
 BEGIN
+    -- Log de inicio del proceso maestro para tener un registro claro del comienzo de la carga masiva
     CALL sp_log_step(NULL, 'INICIO', 'SISTEMA', 'Iniciando carga masiva de Dynamic Brands...');
     
     CALL sp_load_base_data();
@@ -181,3 +186,86 @@ CALL sp_orchestrate_full_load();
 
 -- Verificación rápida de logs
 SELECT * FROM spTransactionState;
+
+
+
+
+-- =============================================
+-- 6. SIMULACIÓN DE ACTIVIDAD DE NEGOCIO (Órdenes, Inventario, Precios). Esto no se pide en el .md del caso#2 pero es para poder informacion extra en el dashboard
+-- =============================================
+
+USE dynamic_brands;
+
+DELIMITER //
+
+CREATE PROCEDURE sp_load_business_activity()
+BEGIN
+    DECLARE i INT DEFAULT 1;
+    DECLARE v_order_id INT;
+    DECLARE v_product_id INT;
+    DECLARE v_website_id INT;
+    DECLARE v_country_id INT;
+
+    -- Manejo de errores[cite: 3]
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
+        ROLLBACK;
+        CALL sp_log_step(NULL, 'ERROR', 'Actividad Negocio', @msg);
+    END;
+
+    START TRANSACTION;
+
+    -- 1. CREAR USUARIOS DE PRUEBA
+    INSERT INTO users (name, lastName, email, enabled) VALUES 
+    ('Juan', 'Pérez', 'juan@mail.com', 1),
+    ('María', 'García', 'maria@mail.com', 1),
+    ('John', 'Doe', 'john@mail.us', 1);
+
+    -- 2. ASIGNAR INVENTARIO Y COSTOS (Para poder calcular ganancias)
+    -- Vamos a recorrer los 100 productos y darles un stock y un costo base
+    SET i = 1;
+    WHILE i <= 100 DO
+        INSERT INTO productInventory (productId, currentStock, lastUpdated)
+        VALUES (i, FLOOR(10 + (RAND() * 50)), NOW());
+        
+        -- Historial de precios (Precio de Venta sugerido)
+        INSERT INTO productPriceHistory (productId, websiteId, newPrice, changeDate)
+        VALUES (i, (i % 9) + 1, (20 + (RAND() * 80)), NOW());
+        
+        SET i = i + 1;
+    END WHILE;
+
+    -- 3. SIMULAR 50 ÓRDENES ALEATORIAS[cite: 6]
+    SET i = 1;
+    WHILE i <= 50 DO
+        -- Seleccionamos un sitio web y un producto al azar
+        SET v_website_id = (SELECT websiteId FROM websites ORDER BY RAND() LIMIT 1);
+        SET v_country_id = (SELECT countryId FROM websites WHERE websiteId = v_website_id);
+        SET v_product_id = (SELECT productId FROM products ORDER BY RAND() LIMIT 1);
+
+        -- Insertar la Orden[cite: 6]
+        INSERT INTO orders (websiteId, userId, countryId, orderNumber, netAmountLocal, totalGrossLocal, orderDate)
+        VALUES (v_website_id, (i % 3) + 1, v_country_id, 1000 + i, 50.00, 56.50, DATE_SUB(NOW(), INTERVAL i DAY));
+        
+        SET v_order_id = LAST_INSERT_ID();
+
+        -- Insertar el Item de la orden[cite: 6]
+        INSERT INTO orderItems (orderId, productId, quantity, itemPriceLocal, itemTotalLocal)
+        VALUES (v_order_id, v_product_id, FLOOR(1 + RAND() * 3), 50.00, 50.00);
+
+        -- 4. SIMULAR ENVÍO (Para ver pérdidas/gastos logísticos)[cite: 6]
+        INSERT INTO shipments (orderId, methodId, carrierId, shipmentStatusId, shippedAt)
+        VALUES (v_order_id, 1, 1, 1, NOW());
+
+        SET i = i + 1;
+    END WHILE;
+
+    CALL sp_log_step(NULL, 'EXITO', 'Actividad Negocio', 'Inventario, Precios y 50 Órdenes generadas.');
+    COMMIT;
+END //
+
+DELIMITER ;
+
+-- Ejecutar la carga
+CALL sp_load_business_activity();

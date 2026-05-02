@@ -443,3 +443,5 @@ CREATE TABLE shipmentsStatusHistory (
     FOREIGN KEY (shipmentStatusId) REFERENCES shipmentsStatus(shipmentStatusId),
     FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
+
+

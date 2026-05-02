@@ -313,4 +313,17 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		
+		## severities
+		- severityId : serial auto-increment (PK)
+		- severityName : VARCHAR(50)
+		- description : VARCHAR(100)
+
+		## systemErrorsLogs
+		- errorId : serial auto-increment (PK)
+		- severityId : integer (FK)
+		- processUuid : VARCHAR(100)
+		- processName : VARCHAR(100)
+		- stepName : VARCHAR(100)
+		- inputData : JSONB
+		- errorMesage : TEXT
+		- creadetAt : TIMESTAMP
