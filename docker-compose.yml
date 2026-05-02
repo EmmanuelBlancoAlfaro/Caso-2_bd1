@@ -50,6 +50,16 @@ services:
       - postgres-db
       - mysql-db
 
+  # 4. Plataforma de Business Intelligence (Metabase)
+  metabase:
+    image: metabase/metabase:latest
+    container_name: metabase_bi
+    restart: always
+    ports:
+      - "3000:3000"
+    depends_on:
+      - dw-db
+
 networks:
   default:
     name: proyecto_integrador_net
