@@ -191,11 +191,10 @@ SELECT * FROM spTransactionState;
 
 
 -- ==============================================================
--- RECONSTRUCCIÓN DEL SP DE ACTIVIDAD DE NEGOCIO (Dinamismo NOT NULL)
+-- RECONSTRUCCIÓN DEFINITIVA - PROTECCIÓN TOTAL CONTRA NULOS
 -- ==============================================================
 USE dynamic_brands;
 
--- 1. Borramos el procedimiento si ya existe para evitar conflictos
 DROP PROCEDURE IF EXISTS sp_load_business_activity;
 
 DELIMITER //
@@ -214,14 +213,13 @@ BEGIN
     DECLARE v_ship_status_id INT; 
     DECLARE v_random_price DECIMAL(10,2);
     
-    -- Variables para el cumplimiento de integridad (NOT NULL)
     DECLARE v_batch_id INT;
     DECLARE v_location_id INT;
     DECLARE v_rate_id INT;
     DECLARE v_address_id INT;
     DECLARE v_shipping_tax_id INT;
 
-    -- Manejo de errores para el Log del sistema
+    -- Manejo de errores
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
         GET DIAGNOSTICS CONDITION 1 @msg = MESSAGE_TEXT;
@@ -231,78 +229,94 @@ BEGIN
 
     START TRANSACTION;
 
-    -- 2. GARANTIZAR DATOS EN TABLAS MAESTRAS (Requisitos de FK)
-    -- Insertamos un lote por defecto si no existe
-    INSERT IGNORE INTO batch (batchId, batchNumber, batchDescription, enabled) 
-    VALUES (1, 'BATCH-INITIAL-01', 'Lote de carga inicial automática', 1);
-    SET v_batch_id = 1;
-
-    -- Buscamos una ubicación física (Aisle/Shelf/Bin)
-    SELECT locationId INTO v_location_id FROM hubLayout LIMIT 1;
+    -- 1. GARANTIZAR TODAS LAS TABLAS MAESTRAS (Requisitos NOT NULL)
     
-    -- Buscamos tasa de cambio y dirección para las órdenes/envíos
+    -- Usuarios
+    INSERT IGNORE INTO users (userId, name, lastName, email, enabled) 
+    VALUES (1, 'Admin', 'Sistema', 'admin@dynamic.com', 1);
+    
+    -- Estados de Orden (El que te dio error)
+    INSERT IGNORE INTO ordersStatus (orderStatuId, orderStatusName, orderStatuDescription) 
+    VALUES (1, 'Completado', 'Procesado por simulación');
+
+    -- Ubicaciones e Inventario
+    INSERT IGNORE INTO hubZones (zoneId, zoneName, enabled) VALUES (1, 'Principal', 1);
+    INSERT IGNORE INTO hubLayout (locationId, zoneId, aisle, shelf, bin) VALUES (1, 1, 'A1', '1', '1');
+    INSERT IGNORE INTO batch (batchId, batchNumber, batchDescription, enabled) VALUES (1, 'B-SIM', 'Simulación', 1);
+
+    -- Envíos y Geografía
+    INSERT IGNORE INTO shippingMethods (methodId, methodName, enabled) VALUES (1, 'Estándar', 1);
+    INSERT IGNORE INTO shippingCarriers (carrierId, shippingCarrierName, enabled) VALUES (1, 'Courier Genérico', 1);
+    INSERT IGNORE INTO shipmentsStatus (shipmentStatusId, shipmentStatusName) VALUES (1, 'Entregado');
+    INSERT IGNORE INTO shippingTaxes (shippingTaxId, taxName, taxRate) VALUES (1, 'IVA Envío', 0.13);
+    
+    -- Direcciones y Moneda (Asegúrate de que existan países en countries antes de esto)
+    -- Si falla aquí, es porque no hay países. Insertamos uno de emergencia.
+    INSERT IGNORE INTO countries (countryId, countryName, isoCode) VALUES (1, 'Costa Rica', 'CR');
+    INSERT IGNORE INTO addresses (addressId, countryId, city, streetAddress) VALUES (1, 1, 'San José', 'Avenida Central');
+    INSERT IGNORE INTO currencyRates (rateId, fromCurrency, toCurrency, rateValue) VALUES (1, 'CRC', 'USD', 530.00);
+
+    -- 2. ASIGNACIÓN INICIAL DE VARIABLES DE RESPALDO (Evita NULLs si el RAND() falla)
+    SELECT userId INTO v_user_id FROM users LIMIT 1;
+    SELECT locationId INTO v_location_id FROM hubLayout LIMIT 1;
+    SELECT orderStatuId INTO v_status_id FROM ordersStatus LIMIT 1;
     SELECT rateId INTO v_rate_id FROM currencyRates LIMIT 1;
     SELECT addressId INTO v_address_id FROM addresses LIMIT 1;
     SELECT shippingTaxId INTO v_shipping_tax_id FROM shippingTaxes LIMIT 1;
+    SELECT batchId INTO v_batch_id FROM batch LIMIT 1;
+    SELECT methodId INTO v_method_id FROM shippingMethods LIMIT 1;
+    SELECT carrierId INTO v_carrier_id FROM shippingCarriers LIMIT 1;
+    SELECT shipmentStatusId INTO v_ship_status_id FROM shipmentsStatus LIMIT 1;
 
     -- 3. CARGA DE INVENTARIO Y PRECIOS (100 Productos)
     SET i = 1;
     WHILE i <= 100 DO
         SELECT websiteId INTO v_website_id FROM websites ORDER BY RAND() LIMIT 1;
-        SELECT userId INTO v_user_id FROM users ORDER BY RAND() LIMIT 1;
-
-        -- Inserción en Inventario (Campos batchId y locationId corregidos)
-        INSERT INTO productInventory (productId, batchId, currentStock, locationId, lastUpdated)
-        VALUES (i, v_batch_id, FLOOR(10 + (RAND() * 50)), v_location_id, NOW());
+        -- Si no hay websites, usamos un valor 1 o saltamos (asumiendo que hay al menos 1)
         
-        -- Inserción en Historial de Precios (Campo updatedBy corregido)
+        INSERT INTO productInventory (productId, batchId, currentStock, locationId, lastUpdated)
+        VALUES (i, v_batch_id, FLOOR(5 + (RAND() * 50)), v_location_id, NOW());
+        
         INSERT INTO productPriceHistory (productId, websiteId, newPrice, changeDate, updatedBy)
-        VALUES (i, v_website_id, ROUND((20 + (RAND() * 80)), 2), NOW(), v_user_id);
+        VALUES (i, IFNULL(v_website_id, 1), ROUND((10 + (RAND() * 90)), 2), NOW(), v_user_id);
         
         SET i = i + 1;
     END WHILE;
 
-    -- 4. CARGA DE ÓRDENES Y ENVÍOS (50 Órdenes)
+    -- 4. CARGA DE ÓRDENES (50 Órdenes)
     SET i = 1;
     WHILE i <= 50 DO
-        SELECT websiteId, countryId INTO v_website_id, v_country_id FROM websites ORDER BY RAND() LIMIT 1;
-        SELECT userId INTO v_user_id FROM users ORDER BY RAND() LIMIT 1;
-        SELECT orderStatuId INTO v_status_id FROM ordersStatus ORDER BY RAND() LIMIT 1;
-        SELECT methodId INTO v_method_id FROM shippingMethods ORDER BY RAND() LIMIT 1;
-        SELECT carrierId INTO v_carrier_id FROM shippingCarriers ORDER BY RAND() LIMIT 1;
-        SELECT shipmentStatusId INTO v_ship_status_id FROM shipmentsStatus ORDER BY RAND() LIMIT 1;
-        
+        -- Intentar obtener valores aleatorios, pero con respaldo (IFNULL)
+        SET v_website_id = (SELECT websiteId FROM websites ORDER BY RAND() LIMIT 1);
+        SET v_country_id = (SELECT countryId FROM countries ORDER BY RAND() LIMIT 1);
         SET v_product_id = (SELECT productId FROM products ORDER BY RAND() LIMIT 1);
-        SET v_random_price = ROUND((30 + (RAND() * 70)), 2);
+        SET v_random_price = ROUND((20 + (RAND() * 80)), 2);
 
-        -- Inserción de la Orden con montos USD simulados
         INSERT INTO orders (
             websiteId, userId, countryId, orderNumber, 
             netAmountLocal, taxAmountLocal, totalGrossLocal, 
             orderDate, orderStatuId, netAmountUSD, rateId
         )
         VALUES (
-            v_website_id, v_user_id, v_country_id, 9000 + i, 
+            IFNULL(v_website_id, 1), v_user_id, IFNULL(v_country_id, 1), 30000 + i, 
             v_random_price, ROUND(v_random_price * 0.13, 2), 
-            ROUND(v_random_price * 1.13, 2), DATE(DATE_SUB(NOW(), INTERVAL i DAY)), 
-            v_status_id, (v_random_price / 535.0), v_rate_id
+            ROUND(v_random_price * 1.13, 2), DATE_SUB(NOW(), INTERVAL i DAY), 
+            v_status_id, (v_random_price / 530), v_rate_id
         );
 
         SET v_order_id = LAST_INSERT_ID();
 
-        -- Inserción del Item de la orden
         INSERT INTO orderItems (
             orderId, productId, quantity, 
             itemPriceLocal, itemTotalLocal, taxLocal, 
             itemPriceUSD, itemTotalUSD
         )
         VALUES (
-            v_order_id, v_product_id, FLOOR(1 + RAND() * 3), 
+            v_order_id, IFNULL(v_product_id, 1), FLOOR(1 + RAND() * 2), 
             v_random_price, v_random_price, ROUND(v_random_price * 0.13, 2),
-            (v_random_price / 535.0), (v_random_price / 535.0)
+            (v_random_price / 530), (v_random_price / 530)
         );
 
-        -- Inserción del Envío (Campos addressId y shippingTaxId validados)
         INSERT INTO shipments (
             orderId, methodId, carrierId, 
             shipmentStatusId, addressId, shippingTaxId, shippedAt
@@ -315,13 +329,10 @@ BEGIN
         SET i = i + 1;
     END WHILE;
 
-    -- 5. LOG DE ÉXITO FINAL
-    CALL sp_log_step(NULL, 'EXITO', 'Actividad Negocio', 'Simulación completada con integridad referencial total.');
-    
+    CALL sp_log_step(NULL, 'EXITO', 'Actividad Negocio', 'Simulación limpia: Cero valores nulos en campos obligatorios.');
     COMMIT;
 END //
 
 DELIMITER ;
 
--- Ejecución automática del proceso
 CALL sp_load_business_activity();
