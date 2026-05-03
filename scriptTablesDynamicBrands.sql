@@ -1,7 +1,7 @@
 CREATE TABLE Currency (
     currencyId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    simbol VARCHAR(10) NOT NULL
+    simbol VARCHAR(1) NOT NULL
 );
 
 CREATE TABLE addressType (
