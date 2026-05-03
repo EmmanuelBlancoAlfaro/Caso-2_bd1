@@ -2,7 +2,7 @@
 
 ------------------- ADRESS PATTERN --------------------------------------------------
 ## FUNCION: Adressess pattern no hay mas
-		## Countries
+		## ETH_Countries
 		- countryId: serial auto-increment (PK)
 		- isoCode: UNIQUE VARCHAR (3) 
 		- countryName: VARCHAR (50)
@@ -11,7 +11,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 
-		## States
+		## ETH_States
 		- stateId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- stateName: VARCHAR (40)
@@ -20,7 +20,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 
-		## Cities
+		## ETH_Cities
 		- cityId: serial auto-increment (PK)
 		- stateId: integer (FK)
 		- cityName: VARCHAR (50)
@@ -29,7 +29,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 
-		## Addresses
+		## ETH_Addresses
 		- addressId: serial auto-increment (PK)
 		- cityId: integer (FK)
 		- address: VARCHAR (100)
@@ -42,10 +42,10 @@
 		- updatedBy: integer (FK)
 		
 ----------------- CONTACT INFO PATTERN ----------------------------------------------		
-## FUNCION: 
+## FUNCION: DETERMINAR LOS EMPLOYEES, SUPPLIERS Y LOS SERVICE PROVIDERS (COURIERS) CON SUS RESPECTIVOS CONTACTOS
 
 
-		## Employees
+		## ETH_Employees
 		- employeeId: serial auto-increment (PK)
 		- addressId: integer (FK)
 		- firstName: VARCHAR (20)
@@ -56,7 +56,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## Suppliers 
+		## ETH_Suppliers 
 		- supplierId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- addressId: integer (FK)
@@ -70,7 +70,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## Services Providers
+		## ETH_ServicesProviders
 		- providerId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- addressId: integer (FK)
@@ -86,7 +86,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## ContactTypes
+		## ETH_ContactTypes
 		- contactTypeId: serial auto-increment (PK)
 		- contactTypeName: VARCHAR (50)
 		- isActive: BOOLEAN
@@ -95,7 +95,7 @@
 		- updatedBy: integer (FK)
 		
 		
-		## Contacts
+		## ETH_Contacts
 		- contactId: serial auto-increment (PK)
 		- employeeId: integer (FK) [NULLABLE]
 		- providerId: integer (FK) [NULLABLE]
@@ -110,7 +110,7 @@
 ----------------- CURRENCY PATTERN --------------------------------------------------
 ## FUNCION: CURRENCY PATTERN no hay mas xD
 
-		## Currencies
+		## ETH_Currencies
 		- currencyId: serial auto-increment (PK)
 		- currencySymbol: VARCHAR (5)
 		- currencyName: VARCHAR (40)
@@ -120,7 +120,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 
-		## ExchangeRates
+		## ETH_ExchangeRates
 		- exchangeRateId: serial auto-increment (PK)
 		- currencyId1: integer (FK)
 		- currencyId2: integer (FK)
@@ -131,7 +131,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK) 
 
-		## ExchangeHistories
+		## ETH_ExchangeHistories
 		- exchangeHistoryId: serial auto-increment (PK)
 		- startDateTime: TIMESTAMP
 		- endDateTime: TIMESTAMP
@@ -146,10 +146,13 @@
 		- exchangeRateId: integer (FK)
 			
 ----------------- MASTER - DETAIL ---------------------------------------------------
-## FUNCION:
+## FUNCION: AQUI SE PONDRAN ESTOS TIPOS DE TABLAS
+## 1. TABLAS NECESARIAS PARA LA TABLA MAESTRA Y SUS DERIVADAS  (PURCHASE ORDERS - PURCHASE ORDERS DETAILS, ETC)   
+## 2. TABLAS DETAIL DEL MASTER COMO (PurchaseOrdersDetails, PurchaseOrdersLandedCosts, PurchaseOrdersTracking) 
+## 3. TABLA MASTER (PurchaseOrder)  
 
 
-		## LogisticsRoles
+		## ETH_LogisticsRoles
 		- logisticsRoleId: serial auto-increment (PK)
 		- roleName: VARCHAR (40)
 		- isActive: BOOLEAN
@@ -157,7 +160,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 	
-		## TransportMethods
+		## ETH_TransportMethods
 		- transportMethodId: serial auto-increment (PK)
 		- transportName: VARCHAR (30)
 		- isActive: BOOLEAN
@@ -165,7 +168,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 	
-		## Incoterms
+		## ETH_Incoterms
 		- incotermId: serial auto-increment (PK)
 		- incotermCode: UNIQUE VARCHAR (3)
 		- description: VARCHAR (100)
@@ -174,7 +177,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 	
-		## StatusTypes
+		## ETH_StatusTypes
 		- StatusTypeId: serial auto-increment (PK)
 		- statusName: VARCHAR (15)
 		- isActive: BOOLEAN
@@ -182,7 +185,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## CountriesRegulations
+		## ETH_CountriesRegulations
 		- countryRegulationId: serial auto-increment (PK)
 		- countryId: integer (FK)
 		- regulationName: VARCHAR (60)
@@ -193,7 +196,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## ProductsCategories
+		## ETH_ProductsCategories
 		- categoryId: serial auto-increment (PK)
 		- categoryName: VARCHAR (40)
 		- description: VARCHAR (100)
@@ -202,7 +205,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## UnitsOfMeasure
+		## ETH_UnitsOfMeasure
 		- unitOfMeasureId: serial auto-increment (PK)
 		- symbol: UNIQUE VARCHAR (5)
 		- measureName: VARCHAR (25)
@@ -211,7 +214,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## PaymentMethods
+		## ETH_PaymentMethods
 		- paymentMethodId: serial auto-increment (PK)
 		- paymentMethodName: VARCHAR (30)
 		- isActive: BOOLEAN
@@ -219,7 +222,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## CostsTypes
+		## ETH_CostsTypes
 		- costTypeId: serial auto-increment (PK)
 		- costTypeName: VARCHAR (50)
 		- isActive: BOOLEAN
@@ -227,7 +230,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## IncotermsRules
+		## ETH_IncotermsRules
 		- ruleId: serial auto-increment (PK)
 		- incotermId: integer (FK)
 		- costTypeId: integer (FK)
@@ -237,7 +240,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## Products
+		## ETH_Products
 		- productId: serial auto-increment (PK)
 		- categoryId: integer (FK)
 		- unitOfMeasureId: integer (FK)
@@ -248,7 +251,7 @@
 		- updatedAt: TIMESTAMP
 		- updatedBy: integer (FK)
 		
-		## PurchaseOrders
+		## ETH_PurchaseOrders
 		- purchaseOrderId: serial auto-increment (PK)
 		- supplierId: integer (FK)
 		- paymentMethodId: integer (FK)
@@ -267,7 +270,7 @@
 		- createdBy: integer (FK)
 		- updatedBy: integer (FK) 
 		
-		## PurchaseOrdersDetails
+		## ETH_PurchaseOrdersDetails
 		- purchaseDetailId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
 		- productId: integer (FK)
@@ -285,7 +288,7 @@
 		- createdBy: integer (FK)
 		- updatedBy: integer (FK)
 		
-		## PurchaseOrdersLandedCosts
+		## ETH_PurchaseOrdersLandedCosts
 		- purchaseCostsId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
 		- providerId: integer (FK)
@@ -301,7 +304,7 @@
 		- createdBy: integer (FK)
 		- updatedBy: integer (FK)
 		
-		## PurchaseOrdersTracking
+		## ETH_PurchaseOrdersTracking
 		- orderTrackingId: serial auto-increment (PK)
 		- purchaseOrderId: integer (FK)
 		- statusTypeId: integer (FK)
