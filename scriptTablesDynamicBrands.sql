@@ -1,272 +1,260 @@
--- ==============================================================
--- 1. CATÁLOGOS BASE (Sin Dependencias)
--- ==============================================================
 CREATE TABLE Currency (
     currencyId INT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
-    simbol VARCHAR(1) NOT NULL
+    simbol VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE addressType (
     addressTypeId INT AUTO_INCREMENT PRIMARY KEY,
-    addressTypeName VARCHAR(100)
+    addressTypeName VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE batch (
     batchId INT AUTO_INCREMENT PRIMARY KEY,
-    batchNumber INT,
-    batchDescription VARCHAR(150),
-    enabled BOOLEAN DEFAULT TRUE
+    batchNumber VARCHAR(50) NOT NULL,
+    batchDescription VARCHAR(150) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE UnitsOfMeasures (
     unitOfMeasureId INT AUTO_INCREMENT PRIMARY KEY,
-    symbol VARCHAR(5) UNIQUE,
-    name VARCHAR(30)
+    symbol VARCHAR(10) NOT NULL UNIQUE,
+    name VARCHAR(30) NOT NULL
 );
 
 CREATE TABLE BrandsPositionsTypes (
     brandTypeId INT AUTO_INCREMENT PRIMARY KEY,
-    brandTypeName VARCHAR(50),
-    brandTypeDescription VARCHAR(100)
+    brandTypeName VARCHAR(50) NOT NULL,
+    brandTypeDescription VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE hubZones (
     zoneId INT AUTO_INCREMENT PRIMARY KEY,
-    zoneName VARCHAR(50),
-    enabled BOOLEAN DEFAULT TRUE
+    zoneName VARCHAR(50) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE productAttributes (
     attributeId INT AUTO_INCREMENT PRIMARY KEY,
-    attributeName VARCHAR(50),
-    enabled BOOLEAN DEFAULT TRUE
+    attributeName VARCHAR(50) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE ordersStatus (
     orderStatuId INT AUTO_INCREMENT PRIMARY KEY,
-    orderStatusName VARCHAR(20),
-    orderStatuDescription VARCHAR(100)
+    orderStatusName VARCHAR(20) NOT NULL,
+    orderStatuDescription VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE shippingMethods (
     methodId INT AUTO_INCREMENT PRIMARY KEY,
     methodName VARCHAR(50) NOT NULL,
-    enabled BOOLEAN DEFAULT TRUE
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE shipmentsStatus (
     shipmentStatusId INT AUTO_INCREMENT PRIMARY KEY,
-    shipmentStatusName VARCHAR(20),
-    description VARCHAR(50)
+    shipmentStatusName VARCHAR(20) NOT NULL,
+    description VARCHAR(50) NOT NULL
 );
 
 CREATE TABLE taxesTypes (
     taxTypeId INT AUTO_INCREMENT PRIMARY KEY,
-    taxTypeName VARCHAR(100),
-    taxTypeDescription VARCHAR(150)
+    taxTypeName VARCHAR(100) NOT NULL,
+    taxTypeDescription VARCHAR(150) NOT NULL
 );
 
 CREATE TABLE restrictionsTypes (
     restrictionId INT AUTO_INCREMENT PRIMARY KEY,
-    restrictionTypeName VARCHAR(50),
-    restrictionTypeDescription VARCHAR(100)
+    restrictionTypeName VARCHAR(50) NOT NULL,
+    restrictionTypeDescription VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE eventsTypes (
     eventTypeId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
-    description VARCHAR(150)
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(150) NOT NULL
 );
 
 CREATE TABLE dataObjects (
     dataObjectId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
-    description VARCHAR(100)
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE severities (
     severityId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
-    description VARCHAR(100)
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(100) NOT NULL
 );
 
 CREATE TABLE statusTransactionType (
     statusTypeId INT AUTO_INCREMENT PRIMARY KEY,
-    statusName VARCHAR(50),
-    statusDescription VARCHAR(150)
+    statusName VARCHAR(50) NOT NULL,
+    statusDescription VARCHAR(150) NOT NULL
 );
 
 CREATE TABLE productCategories (
     productCategoryId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(40),
-    description VARCHAR(100),
-    healthRiskLevel VARCHAR(20)
+    name VARCHAR(40) NOT NULL,
+    description VARCHAR(100) NOT NULL,
+    healthRiskLevel VARCHAR(20) NOT NULL
 );
 
 CREATE TABLE shippingCarriers (
     carrierId INT AUTO_INCREMENT PRIMARY KEY,
-    shippingCarrierName VARCHAR(50),
+    shippingCarrierName VARCHAR(50) NOT NULL,
     lastName VARCHAR(30),
-    contactInfo VARCHAR(100),
+    contactInfo VARCHAR(100) NOT NULL,
     trackingTemplate VARCHAR(200),
-    enabled BOOLEAN DEFAULT TRUE
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
--- ==============================================================
--- 2. TABLAS CON DEPENDENCIAS NIVEL 1
--- ==============================================================
 CREATE TABLE currencyRates (
     rateId INT AUTO_INCREMENT PRIMARY KEY,
-    currencyId INT,
-    exchangeRate DECIMAL(18,6),
-    rateDate DATE,
+    currencyId INT NOT NULL,
+    exchangeRate DECIMAL(18,6) NOT NULL,
+    rateDate DATE NOT NULL,
     FOREIGN KEY (currencyId) REFERENCES Currency(currencyId)
 );
 
 CREATE TABLE countries (
     countryId INT AUTO_INCREMENT PRIMARY KEY,
-    isoCode VARCHAR(3) NOT NULL,
+    isoCode VARCHAR(3) NOT NULL UNIQUE,
     countryName VARCHAR(50) NOT NULL,
-    currencyId INT,
-    enabled BOOLEAN DEFAULT TRUE,
+    currencyId INT NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (currencyId) REFERENCES Currency(currencyId)
 );
 
 CREATE TABLE hubLayout (
     locationId INT AUTO_INCREMENT PRIMARY KEY,
-    zoneId INT,
-    aisle VARCHAR(10),
-    shelf VARCHAR(10),
-    bin VARCHAR(10),
+    zoneId INT NOT NULL,
+    aisle VARCHAR(10) NOT NULL,
+    shelf VARCHAR(10) NOT NULL,
+    bin VARCHAR(10) NOT NULL,
     FOREIGN KEY (zoneId) REFERENCES hubZones(zoneId)
 );
 
 CREATE TABLE categoryAttributes (
     categoryAttributeId INT AUTO_INCREMENT PRIMARY KEY,
-    productCategoryId INT,
-    attributeId INT,
+    productCategoryId INT NOT NULL,
+    attributeId INT NOT NULL,
     FOREIGN KEY (productCategoryId) REFERENCES productCategories(productCategoryId),
     FOREIGN KEY (attributeId) REFERENCES productAttributes(attributeId)
 );
 
 CREATE TABLE users (
     userId INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(50),
-    lastName VARCHAR(50),
-    email VARCHAR(100),
-    password VARBINARY(255),
-    phone INT,
-    creadetAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    enabled BOOLEAN DEFAULT TRUE
+    name VARCHAR(50) NOT NULL,
+    lastName VARCHAR(50) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    password VARBINARY(255) NOT NULL,
+    phone VARCHAR(20) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL
 );
 
 CREATE TABLE priceShippingMethod (
     priceMethodId INT AUTO_INCREMENT PRIMARY KEY,
-    methodId INT,
-    price DECIMAL(10,2),
+    methodId INT NOT NULL,
+    price DECIMAL(10,2) NOT NULL,
     FOREIGN KEY (methodId) REFERENCES shippingMethods(methodId)
 );
 
 CREATE TABLE shippingTaxes (
     shippingTaxId INT AUTO_INCREMENT PRIMARY KEY,
-    countryId INT,
-    taxPercent DECIMAL(5,2),
-    description VARCHAR(50),
+    countryId INT NOT NULL,
+    taxPercent DECIMAL(5,2) NOT NULL,
+    description VARCHAR(50) NOT NULL,
     FOREIGN KEY (countryId) REFERENCES countries(countryId)
 );
 
 CREATE TABLE systemErrorsLogs (
     errorId INT AUTO_INCREMENT PRIMARY KEY,
-    severityId INT,
-    processUuid VARCHAR(100),
-    processName VARCHAR(100),
-    stepName VARCHAR(100),
+    severityId INT NOT NULL,
+    processUuid VARCHAR(100) NOT NULL,
+    processName VARCHAR(100) NOT NULL,
+    stepName VARCHAR(100) NOT NULL,
     inputData JSON,
-    errorMesage TEXT,
-    creadetAt DATE,
+    errorMesage TEXT NOT NULL,
+    createdAt DATE NOT NULL,
     FOREIGN KEY (severityId) REFERENCES severities(severityId)
 );
 
--- ==============================================================
--- 3. TABLAS CON DEPENDENCIAS NIVEL 2
--- ==============================================================
 CREATE TABLE estates (
     estateId INT AUTO_INCREMENT PRIMARY KEY,
-    countryId INT,
-    estateName VARCHAR(70),
+    countryId INT NOT NULL,
+    estateName VARCHAR(70) NOT NULL,
     FOREIGN KEY (countryId) REFERENCES countries(countryId)
 );
 
 CREATE TABLE products (
     productId INT AUTO_INCREMENT PRIMARY KEY,
-    productCategoryId INT,
-    unitOfMeasureId INT,
-    productName VARCHAR(100),
-    enabled BOOLEAN DEFAULT TRUE,
+    productCategoryId INT NOT NULL,
+    unitOfMeasureId INT NOT NULL,
+    productName VARCHAR(100) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (productCategoryId) REFERENCES productCategories(productCategoryId),
     FOREIGN KEY (unitOfMeasureId) REFERENCES UnitsOfMeasures(unitOfMeasureId)
 );
 
 CREATE TABLE websites (
     websiteId INT AUTO_INCREMENT PRIMARY KEY,
-    countryId INT,
-    brandName VARCHAR(150),
-    domain VARCHAR(32),
+    countryId INT NOT NULL,
+    brandName VARCHAR(150) NOT NULL,
+    domain VARCHAR(100) NOT NULL UNIQUE,
     marketingFocus TEXT,
-    enabled BOOLEAN DEFAULT TRUE,
-    creadetAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (countryId) REFERENCES countries(countryId)
 );
 
 CREATE TABLE sessions (
     sessionId INT AUTO_INCREMENT PRIMARY KEY,
-    userId INT,
-    sessionToken VARCHAR(100),
-    creadetAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    userId INT NOT NULL,
+    sessionToken VARCHAR(100) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (userId) REFERENCES users(userId)
 );
 
 CREATE TABLE taxesPerCountry (
     taxId INT AUTO_INCREMENT PRIMARY KEY,
-    countryId INT,
-    taxTypeId INT,
-    validFrom DATE,
+    countryId INT NOT NULL,
+    taxTypeId INT NOT NULL,
+    validFrom DATE NOT NULL,
     validUntil DATE,
-    productCategoryId INT,
-    tax_percent DECIMAL(5,2),
-    enabled BOOLEAN DEFAULT TRUE,
+    productCategoryId INT NOT NULL,
+    tax_percent DECIMAL(5,2) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (countryId) REFERENCES countries(countryId),
     FOREIGN KEY (taxTypeId) REFERENCES taxesTypes(taxTypeId),
     FOREIGN KEY (productCategoryId) REFERENCES productCategories(productCategoryId)
 );
 
--- ==============================================================
--- 4. TABLAS CON DEPENDENCIAS NIVEL 3
--- ==============================================================
 CREATE TABLE cities (
     cityId INT AUTO_INCREMENT PRIMARY KEY,
-    estateId INT,
-    cityName VARCHAR(100),
+    estateId INT NOT NULL,
+    cityName VARCHAR(100) NOT NULL,
     FOREIGN KEY (estateId) REFERENCES estates(estateId)
 );
 
 CREATE TABLE productAttributeValues (
     valueId INT AUTO_INCREMENT PRIMARY KEY,
-    productId INT,
-    attributeId INT,
-    valueText VARCHAR(255),
+    productId INT NOT NULL,
+    attributeId INT NOT NULL,
+    valueText VARCHAR(255) NOT NULL,
     FOREIGN KEY (productId) REFERENCES products(productId),
     FOREIGN KEY (attributeId) REFERENCES productAttributes(attributeId)
 );
 
 CREATE TABLE productInventory (
     inventoryId INT AUTO_INCREMENT PRIMARY KEY,
-    productId INT,
-    batchId INT,
-    currentStock INT,
-    locationId INT,
-    lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    productId INT NOT NULL,
+    batchId INT NOT NULL,
+    currentStock INT NOT NULL DEFAULT 0,
+    locationId INT NOT NULL,
+    lastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP NOT NULL,
     FOREIGN KEY (productId) REFERENCES products(productId),
     FOREIGN KEY (batchId) REFERENCES batch(batchId),
     FOREIGN KEY (locationId) REFERENCES hubLayout(locationId)
@@ -274,11 +262,11 @@ CREATE TABLE productInventory (
 
 CREATE TABLE productPriceHistory (
     priceHistoryId INT AUTO_INCREMENT PRIMARY KEY,
-    productId INT,
-    websiteId INT,
-    newPrice DECIMAL(10,2),
-    changeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedBy INT,
+    productId INT NOT NULL,
+    websiteId INT NOT NULL,
+    newPrice DECIMAL(10,2) NOT NULL,
+    changeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updatedBy INT NOT NULL,
     checksum VARBINARY(32),
     FOREIGN KEY (productId) REFERENCES products(productId),
     FOREIGN KEY (websiteId) REFERENCES websites(websiteId),
@@ -287,25 +275,25 @@ CREATE TABLE productPriceHistory (
 
 CREATE TABLE websiteThemes (
     themeId INT AUTO_INCREMENT PRIMARY KEY,
-    websiteId INT,
-    themeName VARCHAR(50),
-    colors JSON,
+    websiteId INT NOT NULL,
+    themeName VARCHAR(50) NOT NULL,
+    colors JSON NOT NULL,
     fonts JSON,
     logoUrl VARCHAR(255),
-    enabled BOOLEAN DEFAULT TRUE,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (websiteId) REFERENCES websites(websiteId)
 );
 
 CREATE TABLE websitesProducts (
     websiteProductId INT AUTO_INCREMENT PRIMARY KEY,
-    websiteId INT,
-    productId INT,
-    displayName VARCHAR(100),
-    displayPriceLocal DECIMAL(10,2),
-    enabled BOOLEAN DEFAULT TRUE,
-    brandTypeId INT,
-    currencyId INT,
-    rateId INT,
+    websiteId INT NOT NULL,
+    productId INT NOT NULL,
+    displayName VARCHAR(100) NOT NULL,
+    displayPriceLocal DECIMAL(10,2) NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
+    brandTypeId INT NOT NULL,
+    currencyId INT NOT NULL,
+    rateId INT NOT NULL,
     FOREIGN KEY (websiteId) REFERENCES websites(websiteId),
     FOREIGN KEY (productId) REFERENCES products(productId),
     FOREIGN KEY (brandTypeId) REFERENCES BrandsPositionsTypes(brandTypeId),
@@ -315,12 +303,12 @@ CREATE TABLE websitesProducts (
 
 CREATE TABLE productRestrictionsPerCountry (
     restrictionId INT AUTO_INCREMENT PRIMARY KEY,
-    productId INT,
-    countryId INT,
-    restrictionTypeId INT,
-    healthRegistrationNumber VARCHAR(50),
-    registrationExpiration DATE,
-    enabled BOOLEAN DEFAULT TRUE,
+    productId INT NOT NULL,
+    countryId INT NOT NULL,
+    restrictionTypeId INT NOT NULL,
+    healthRegistrationNumber VARCHAR(50) NOT NULL,
+    registrationExpiration DATE NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     FOREIGN KEY (productId) REFERENCES products(productId),
     FOREIGN KEY (countryId) REFERENCES countries(countryId),
     FOREIGN KEY (restrictionTypeId) REFERENCES restrictionsTypes(restrictionId)
@@ -328,12 +316,12 @@ CREATE TABLE productRestrictionsPerCountry (
 
 CREATE TABLE usersLogs (
     logId INT AUTO_INCREMENT PRIMARY KEY,
-    eventType INT,
-    dataObjectId INT,
-    websiteId INT,
-    sessionId INT,
-    description VARCHAR(255),
-    creadetAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    eventType INT NOT NULL,
+    dataObjectId INT NOT NULL,
+    websiteId INT NOT NULL,
+    sessionId INT NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     metadata JSON,
     FOREIGN KEY (eventType) REFERENCES eventsTypes(eventTypeId),
     FOREIGN KEY (dataObjectId) REFERENCES dataObjects(dataObjectId),
@@ -343,15 +331,15 @@ CREATE TABLE usersLogs (
 
 CREATE TABLE orders (
     orderId INT AUTO_INCREMENT PRIMARY KEY,
-    websiteId INT,
-    userId INT,
-    countryId INT,
-    orderStatuId INT,
-    orderNumber INT,
-    netAmountLocal DECIMAL(10,2),
-    taxAmountLocal DECIMAL(10,2),
-    totalGrossLocal DECIMAL(10,2),
-    orderDate DATE,
+    websiteId INT NOT NULL,
+    userId INT NOT NULL,
+    countryId INT NOT NULL,
+    orderStatuId INT NOT NULL,
+    orderNumber VARCHAR(50) NOT NULL UNIQUE,
+    netAmountLocal DECIMAL(10,2) NOT NULL,
+    taxAmountLocal DECIMAL(10,2) NOT NULL,
+    totalGrossLocal DECIMAL(10,2) NOT NULL,
+    orderDate DATE NOT NULL,
     netAmountUSD DECIMAL(10,4),
     rateId INT,
     FOREIGN KEY (websiteId) REFERENCES websites(websiteId),
@@ -361,16 +349,13 @@ CREATE TABLE orders (
     FOREIGN KEY (rateId) REFERENCES currencyRates(rateId)
 );
 
--- ==============================================================
--- 5. TABLAS CON DEPENDENCIAS NIVEL 4 (Finales)
--- ==============================================================
 CREATE TABLE addresses (
     addressId INT AUTO_INCREMENT PRIMARY KEY,
-    cityId INT,
-    addressTypeId INT,
-    address1 VARCHAR(100),
+    cityId INT NOT NULL,
+    addressTypeId INT NOT NULL,
+    address1 VARCHAR(100) NOT NULL,
     address2 VARCHAR(100),
-    postalCode VARCHAR(20),
+    postalCode VARCHAR(20) NOT NULL,
     latitude DECIMAL(10, 8),
     longitude DECIMAL(10, 8),
     FOREIGN KEY (cityId) REFERENCES cities(cityId),
@@ -379,13 +364,13 @@ CREATE TABLE addresses (
 
 CREATE TABLE orderItems (
     orderItemId INT AUTO_INCREMENT PRIMARY KEY,
-    orderId INT,
-    productId INT,
-    quantity INT,
-    itemPriceLocal DECIMAL(10,2),
+    orderId INT NOT NULL,
+    productId INT NOT NULL,
+    quantity INT NOT NULL CHECK (quantity > 0),
+    itemPriceLocal DECIMAL(10,2) NOT NULL,
     itemPriceUSD DECIMAL(10,2),
-    taxLocal DECIMAL(10,2),
-    itemTotalLocal DECIMAL(10,2),
+    taxLocal DECIMAL(10,2) NOT NULL,
+    itemTotalLocal DECIMAL(10,2) NOT NULL,
     itemTotalUSD DECIMAL(10,2),
     FOREIGN KEY (orderId) REFERENCES orders(orderId),
     FOREIGN KEY (productId) REFERENCES products(productId)
@@ -393,10 +378,10 @@ CREATE TABLE orderItems (
 
 CREATE TABLE spTransactionState (
     stateId INT AUTO_INCREMENT PRIMARY KEY,
-    orderId INT NULL,
-    statusTypeId INT,
-    stepName VARCHAR(100),
-    executionTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    orderId INT,
+    statusTypeId INT NOT NULL,
+    stepName VARCHAR(100) NOT NULL,
+    executionTime TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
     observations TEXT,
     FOREIGN KEY (orderId) REFERENCES orders(orderId),
     FOREIGN KEY (statusTypeId) REFERENCES statusTransactionType(statusTypeId)
@@ -404,9 +389,9 @@ CREATE TABLE spTransactionState (
 
 CREATE TABLE usersAddresses (
     userAddressId INT AUTO_INCREMENT PRIMARY KEY,
-    userId INT,
-    addressID INT,
-    enabled BOOLEAN DEFAULT TRUE,
+    userId INT NOT NULL,
+    addressID INT NOT NULL,
+    enabled BOOLEAN DEFAULT TRUE NOT NULL,
     checksum VARBINARY(255),
     FOREIGN KEY (userId) REFERENCES users(userId),
     FOREIGN KEY (addressID) REFERENCES addresses(addressId)
@@ -414,15 +399,15 @@ CREATE TABLE usersAddresses (
 
 CREATE TABLE shipments (
     shipmentId INT AUTO_INCREMENT PRIMARY KEY,
-    orderId INT,
-    methodId INT,
-    carrierId INT,
-    shipmentStatusId INT,
-    addressId INT,
+    orderId INT NOT NULL,
+    methodId INT NOT NULL,
+    carrierId INT NOT NULL,
+    shipmentStatusId INT NOT NULL,
+    addressId INT NOT NULL,
     shippedAt DATETIME,
     deliveredAt DATETIME,
-    estimatedDeliveryDaye DATE,
-    shippingTaxId INT,
+    estimatedDeliveryDate DATE,
+    shippingTaxId INT NOT NULL,
     FOREIGN KEY (orderId) REFERENCES orders(orderId),
     FOREIGN KEY (methodId) REFERENCES shippingMethods(methodId),
     FOREIGN KEY (carrierId) REFERENCES shippingCarriers(carrierId),
@@ -433,15 +418,13 @@ CREATE TABLE shipments (
 
 CREATE TABLE shipmentsStatusHistory (
     shipmentHistoryId INT AUTO_INCREMENT PRIMARY KEY,
-    shipmentId INT,
-    shipmentStatusId INT,
-    statusDate DATETIME,
-    notes VARCHAR(150),
+    shipmentId INT NOT NULL,
+    shipmentStatusId INT NOT NULL,
+    statusDate DATETIME NOT NULL,
+    notes VARCHAR(150) NOT NULL,
     evidence VARCHAR(255),
-    addressId INT,
+    addressId INT NOT NULL,
     FOREIGN KEY (shipmentId) REFERENCES shipments(shipmentId),
     FOREIGN KEY (shipmentStatusId) REFERENCES shipmentsStatus(shipmentStatusId),
     FOREIGN KEY (addressId) REFERENCES addresses(addressId)
 );
-
-
